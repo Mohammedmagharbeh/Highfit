@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-const API_URL = "http://localhost:5000/api/nutrition";
+const API_URL = `${process.env.VITE_BASE_URL}/nutrition`;
 
 export const useEditableNutrition = () => {
   const [data, setData] = useState({});

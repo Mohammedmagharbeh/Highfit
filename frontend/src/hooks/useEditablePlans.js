@@ -3,7 +3,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 
 // Fetch endpoints using env or fallback to localhost
-const API_URL = "http://localhost:5000/api/plans";
+const API_URL = `${process.env.VITE_BASE_URL}/plans`;
 
 export const useEditablePlans = () => {
   const [data, setData] = useState({});
