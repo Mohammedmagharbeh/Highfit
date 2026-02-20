@@ -213,98 +213,125 @@ const ExerciseItem = ({
   );
 };
 
-const TrainingDayCard = ({ day, dayIndex, planId, plansHook, isEditMode }) => (
-  <div
-    className={`bg-neutral-950 rounded-2xl p-6 border transition-colors flex flex-col h-full shadow-xl relative ${isEditMode ? "border-neutral-700" : "border-neutral-800/50 hover:border-neutral-700"}`}
-  >
-    {isEditMode && (
-      <button
-        onClick={() => plansHook.deleteDay(planId, dayIndex)}
-        className="absolute left-4 top-4 z-10 p-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg transition-colors"
-        title="حذف القسم / اليوم"
-      >
-        <Trash2 className="w-5 h-5" />
-      </button>
-    )}
+const TrainingDayCard = ({ day, dayIndex, planId, plansHook, isEditMode }) => {
+  const [isDayExpanded, setIsDayExpanded] = useState(false);
 
-    <div className="flex justify-between items-center mb-6 pb-4 border-b border-neutral-800">
-      <h3 className="text-xl font-bold text-white flex items-center gap-2 flex-1">
-        <div className="bg-emerald-500/10 p-1.5 rounded-lg border border-emerald-500/20">
-          <Check className="w-5 h-5 text-emerald-500" />
-        </div>
-        {isEditMode ? (
-          <input
-            value={day.day}
-            onChange={(e) =>
-              plansHook.updateDay(planId, dayIndex, "day", e.target.value)
-            }
-            className="bg-transparent border-b-2 border-dashed border-neutral-600 px-1 py-1 focus:border-emerald-500 outline-none text-white w-2/3"
-            placeholder="اسم اليوم (مثال: اليوم الأول)"
-          />
-        ) : (
-          day.day
-        )}
-      </h3>
-      {isEditMode ? (
-        <input
-          value={day.focus}
-          onChange={(e) =>
-            plansHook.updateDay(planId, dayIndex, "focus", e.target.value)
-          }
-          className="bg-neutral-900 border border-neutral-700 rounded-full px-4 py-1.5 text-sm text-emerald-100 font-medium focus:border-emerald-500 outline-none w-1/3 text-center"
-          placeholder="التركيز"
-        />
-      ) : (
-        <span className="text-sm px-4 py-1.5 rounded-full bg-neutral-900 border border-neutral-800 text-emerald-100 font-medium whitespace-nowrap shadow-sm">
-          {day.focus}
-        </span>
-      )}
-    </div>
-
-    <div className="space-y-4 mb-6 flex-grow">
-      {day.exercises.map((ex, eIdx) => (
-        <ExerciseItem
-          key={eIdx}
-          ex={ex}
-          index={eIdx}
-          planId={planId}
-          dayIndex={dayIndex}
-          plansHook={plansHook}
-          isEditMode={isEditMode}
-        />
-      ))}
+  return (
+    <div
+      className={`bg-neutral-950 rounded-2xl p-6 border transition-colors flex flex-col h-full shadow-xl relative ${isEditMode ? "border-neutral-700" : "border-neutral-800/50 hover:border-neutral-700"}`}
+    >
       {isEditMode && (
         <button
-          onClick={() => plansHook.addExercise(planId, dayIndex)}
-          className="w-full flex items-center justify-center gap-2 py-4 mt-4 border-2 border-dashed border-neutral-700 hover:border-emerald-500 text-neutral-400 hover:text-emerald-400 rounded-xl transition-colors font-bold"
+          onClick={() => plansHook.deleteDay(planId, dayIndex)}
+          className="absolute left-4 top-4 z-10 p-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg transition-colors"
+          title="حذف القسم / اليوم"
         >
-          <Plus className="w-5 h-5" />
-          إضافة تمرين جديد
+          <Trash2 className="w-5 h-5" />
         </button>
       )}
-    </div>
 
-    <div className="mt-auto bg-gradient-to-r from-blue-500/10 to-transparent border border-blue-500/20 rounded-xl p-4 flex items-center justify-between gap-3 text-blue-300 font-medium overflow-hidden relative group">
-      <div className="flex items-center gap-3 w-full relative z-10">
-        <Activity className="w-5 h-5 shrink-0" />
+      <div
+        className={`flex justify-between items-center pb-4 border-b border-neutral-800 ${!isEditMode && "cursor-pointer"}`}
+        onClick={() => !isEditMode && setIsDayExpanded(!isDayExpanded)}
+      >
+        <h3 className="text-xl font-bold text-white flex items-center gap-2 flex-1">
+          <div className="bg-emerald-500/10 p-1.5 rounded-lg border border-emerald-500/20 shrink-0">
+            <Check className="w-5 h-5 text-emerald-500" />
+          </div>
+          {isEditMode ? (
+            <input
+              value={day.day}
+              onChange={(e) =>
+                plansHook.updateDay(planId, dayIndex, "day", e.target.value)
+              }
+              className="bg-transparent border-b-2 border-dashed border-neutral-600 px-1 py-1 focus:border-emerald-500 outline-none text-white w-2/3"
+              placeholder="اسم اليوم (مثال: اليوم الأول)"
+            />
+          ) : (
+            day.day
+          )}
+        </h3>
         {isEditMode ? (
           <input
-            value={day.cardio}
+            value={day.focus}
             onChange={(e) =>
-              plansHook.updateDay(planId, dayIndex, "cardio", e.target.value)
+              plansHook.updateDay(planId, dayIndex, "focus", e.target.value)
             }
-            className="bg-transparent border-b border-dashed border-blue-500/50 w-full outline-none text-blue-200"
-            placeholder="نوع الكارديو"
+            className="bg-neutral-900 border border-neutral-700 rounded-full px-4 py-1.5 text-sm text-emerald-100 font-medium focus:border-emerald-500 outline-none w-1/3 text-center"
+            placeholder="التركيز"
           />
         ) : (
-          <span className="relative z-10">{day.cardio}</span>
+          <div className="flex items-center gap-3">
+            <span className="text-sm px-4 py-1.5 rounded-full bg-neutral-900 border border-neutral-800 text-emerald-100 font-medium whitespace-nowrap shadow-sm">
+              {day.focus}
+            </span>
+            <ChevronDown
+              className={`w-5 h-5 text-neutral-500 transition-transform duration-300 ${isDayExpanded ? "rotate-180" : ""}`}
+            />
+          </div>
         )}
       </div>
-      {!isEditMode && (
-        <div className="absolute inset-0 bg-blue-500/5 translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-out" />
-      )}
+
+      <div
+        className={`grid transition-all duration-500 ease-in-out overflow-hidden flex-1 ${
+          isDayExpanded || isEditMode
+            ? "grid-rows-[1fr] opacity-100 mt-6"
+            : "grid-rows-[0fr] opacity-0 mt-0"
+        }`}
+      >
+        <div className="overflow-hidden flex flex-col h-full">
+          <div className="space-y-4 mb-6 flex-grow">
+            {day.exercises.map((ex, eIdx) => (
+              <ExerciseItem
+                key={eIdx}
+                ex={ex}
+                index={eIdx}
+                planId={planId}
+                dayIndex={dayIndex}
+                plansHook={plansHook}
+                isEditMode={isEditMode}
+              />
+            ))}
+            {isEditMode && (
+              <button
+                onClick={() => plansHook.addExercise(planId, dayIndex)}
+                className="w-full flex items-center justify-center gap-2 py-4 mt-4 border-2 border-dashed border-neutral-700 hover:border-emerald-500 text-neutral-400 hover:text-emerald-400 rounded-xl transition-colors font-bold"
+              >
+                <Plus className="w-5 h-5" />
+                إضافة تمرين جديد
+              </button>
+            )}
+          </div>
+
+          <div className="mt-auto bg-gradient-to-r from-blue-500/10 to-transparent border border-blue-500/20 rounded-xl p-4 flex items-center justify-between gap-3 text-blue-300 font-medium overflow-hidden relative group shrink-0">
+            <div className="flex items-center gap-3 w-full relative z-10">
+              <Activity className="w-5 h-5 shrink-0" />
+              {isEditMode ? (
+                <input
+                  value={day.cardio}
+                  onChange={(e) =>
+                    plansHook.updateDay(
+                      planId,
+                      dayIndex,
+                      "cardio",
+                      e.target.value,
+                    )
+                  }
+                  className="bg-transparent border-b border-dashed border-blue-500/50 w-full outline-none text-blue-200"
+                  placeholder="نوع الكارديو"
+                />
+              ) : (
+                <span className="relative z-10">{day.cardio}</span>
+              )}
+            </div>
+            {!isEditMode && (
+              <div className="absolute inset-0 bg-blue-500/5 translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-out" />
+            )}
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default TrainingDayCard;

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
@@ -9,8 +9,6 @@ export const useEditableNutrition = () => {
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  const timerRef = useRef({});
-
   const fetchNutrition = async () => {
     setLoading(true);
     try {
@@ -18,7 +16,19 @@ export const useEditableNutrition = () => {
       const dbData = response.data;
 
       if (dbData && Object.keys(dbData).length > 0) {
-        setData(dbData);
+        const formattedData = {};
+        for (const [key, value] of Object.entries(dbData)) {
+          if (Array.isArray(value)) {
+            formattedData[key] = {
+              title: "برنامج التخسيس 1500 - 1900 سعرة",
+              desc: "خيارات متعددة لوجبات متوازنة يومياً. قم باختيار وجبة واحدة من كل قسم للحفاظ على سعراتك.",
+              meals: value,
+            };
+          } else {
+            formattedData[key] = value;
+          }
+        }
+        setData(formattedData);
       } else {
         setData({});
       }
@@ -56,19 +66,6 @@ export const useEditableNutrition = () => {
     }
   };
 
-  const autoSyncToDB = (planId, updatedProgramMeals) => {
-    if (timerRef.current[planId]) {
-      clearTimeout(timerRef.current[planId]);
-    }
-    timerRef.current[planId] = setTimeout(async () => {
-      try {
-        await axios.put(`${API_URL}/${planId}`, updatedProgramMeals);
-      } catch (error) {
-        console.error("Autosave failed DB Sync:", error);
-      }
-    }, 1000);
-  };
-
   const addMeal = (planId) => {
     setData((prev) => {
       const planData = prev[planId] || { title: "", desc: "", meals: [] };
@@ -81,7 +78,6 @@ export const useEditableNutrition = () => {
       const updatedMeals = [...currentMeals, newMeal];
       const updatedPlan = { ...planData, meals: updatedMeals };
 
-      autoSyncToDB(planId, updatedPlan);
       return {
         ...prev,
         [planId]: updatedPlan,
@@ -97,7 +93,6 @@ export const useEditableNutrition = () => {
       updatedMeals.splice(mealIndex, 1);
       const updatedPlan = { ...planData, meals: updatedMeals };
 
-      autoSyncToDB(planId, updatedPlan);
       return {
         ...prev,
         [planId]: updatedPlan,
@@ -113,7 +108,6 @@ export const useEditableNutrition = () => {
       updatedMeals[mealIndex] = { ...updatedMeals[mealIndex], [key]: value };
       const updatedPlan = { ...planData, meals: updatedMeals };
 
-      autoSyncToDB(planId, updatedPlan);
       return {
         ...prev,
         [planId]: updatedPlan,
@@ -141,7 +135,6 @@ export const useEditableNutrition = () => {
 
       const updatedPlan = { ...planData, meals: updatedMeals };
 
-      autoSyncToDB(planId, updatedPlan);
       return {
         ...prev,
         [planId]: updatedPlan,
@@ -164,7 +157,6 @@ export const useEditableNutrition = () => {
 
       const updatedPlan = { ...planData, meals: updatedMeals };
 
-      autoSyncToDB(planId, updatedPlan);
       return {
         ...prev,
         [planId]: updatedPlan,
@@ -187,7 +179,6 @@ export const useEditableNutrition = () => {
 
       const updatedPlan = { ...planData, meals: updatedMeals };
 
-      autoSyncToDB(planId, updatedPlan);
       return {
         ...prev,
         [planId]: updatedPlan,
@@ -200,7 +191,6 @@ export const useEditableNutrition = () => {
       const planData = prev[planId] || { title: "", desc: "", meals: [] };
       const updatedPlan = { ...planData, [key]: value };
 
-      autoSyncToDB(planId, updatedPlan);
       return {
         ...prev,
         [planId]: updatedPlan,

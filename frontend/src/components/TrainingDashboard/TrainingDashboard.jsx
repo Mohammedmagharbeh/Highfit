@@ -84,7 +84,7 @@ const TrainingDashboard = ({
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6 items-stretch">
+                <div className="grid gap-6 items-stretch">
                   {activePlan.training.map((day, dIdx) => (
                     <TrainingDayCard
                       key={dIdx}

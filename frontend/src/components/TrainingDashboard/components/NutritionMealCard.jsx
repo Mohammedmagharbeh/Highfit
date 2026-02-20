@@ -1,5 +1,5 @@
-import React from "react";
-import { Utensils, Trash2, Plus } from "lucide-react";
+import React, { useState } from "react";
+import { Utensils, Trash2, Plus, ChevronDown } from "lucide-react";
 
 const NutritionOption = ({
   opt,
@@ -105,88 +105,118 @@ const NutritionMealCard = ({
   planId,
   isEditMode,
   nutritionHook,
-}) => (
-  <div
-    className={`bg-neutral-950 rounded-2xl overflow-hidden border relative ${isEditMode ? "border-neutral-700" : "border-neutral-800"}`}
-  >
-    {isEditMode && (
-      <button
-        onClick={() => nutritionHook.deleteMeal(planId, mealIndex)}
-        className="absolute left-4 top-4 z-10 p-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg transition-colors shadow-lg"
-        title="حذف قسم الوجبة"
-      >
-        <Trash2 className="w-5 h-5" />
-      </button>
-    )}
+}) => {
+  const [isMealExpanded, setIsMealExpanded] = useState(false);
 
-    <div className="bg-neutral-900 px-6 py-4 flex justify-between items-center border-b border-neutral-800">
-      <h3 className="text-xl font-bold text-emerald-400 flex items-center gap-2 flex-1">
-        <Utensils className="w-5 h-5" />
+  return (
+    <div
+      className={`bg-neutral-950 rounded-2xl overflow-hidden border relative ${isEditMode ? "border-neutral-700" : "border-neutral-800"}`}
+    >
+      {isEditMode && (
+        <button
+          onClick={() => nutritionHook.deleteMeal(planId, mealIndex)}
+          className="absolute left-4 top-4 z-10 p-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg transition-colors shadow-lg"
+          title="حذف قسم الوجبة"
+        >
+          <Trash2 className="w-5 h-5" />
+        </button>
+      )}
+
+      <div
+        className={`bg-neutral-900 px-6 py-4 flex justify-between items-center border-b border-neutral-800 ${!isEditMode && "cursor-pointer"}`}
+        onClick={() => !isEditMode && setIsMealExpanded(!isMealExpanded)}
+      >
+        <h3 className="text-xl font-bold text-emerald-400 flex items-center gap-2 flex-1">
+          <Utensils className="w-5 h-5" />
+          {isEditMode ? (
+            <input
+              value={meal.type}
+              onChange={(e) =>
+                nutritionHook.updateMeal(
+                  planId,
+                  mealIndex,
+                  "type",
+                  e.target.value,
+                )
+              }
+              className="bg-transparent border-b-2 border-dashed border-emerald-500/50 px-2 py-1 focus:border-emerald-500 outline-none w-1/2 text-white"
+              placeholder="اسم الوجبة (مثال: وجبة الإفطار)"
+            />
+          ) : (
+            meal.type
+          )}
+        </h3>
         {isEditMode ? (
           <input
-            value={meal.type}
+            value={meal.calories}
             onChange={(e) =>
               nutritionHook.updateMeal(
                 planId,
                 mealIndex,
-                "type",
+                "calories",
                 e.target.value,
               )
             }
-            className="bg-transparent border-b-2 border-dashed border-emerald-500/50 px-2 py-1 focus:border-emerald-500 outline-none w-1/2 text-white"
-            placeholder="اسم الوجبة (مثال: وجبة الإفطار)"
+            className="bg-neutral-950 border border-neutral-700 px-3 py-1 text-sm font-medium text-neutral-400 rounded-full w-1/3 text-center focus:border-emerald-500 outline-none"
+            placeholder="إجمالي السعرات (مثال: 335 - 430 سعرة)"
           />
         ) : (
-          meal.type
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-neutral-400 bg-neutral-950 px-3 py-1 rounded-full">
+              {meal.calories}
+            </span>
+            <ChevronDown
+              className={`w-5 h-5 text-neutral-500 transition-transform duration-300 ${isMealExpanded ? "rotate-180" : ""}`}
+            />
+          </div>
         )}
-      </h3>
-      {isEditMode ? (
-        <input
-          value={meal.calories}
-          onChange={(e) =>
-            nutritionHook.updateMeal(
-              planId,
-              mealIndex,
-              "calories",
-              e.target.value,
-            )
-          }
-          className="bg-neutral-950 border border-neutral-700 px-3 py-1 text-sm font-medium text-neutral-400 rounded-full w-1/3 text-center focus:border-emerald-500 outline-none"
-          placeholder="إجمالي السعرات (مثال: 335 - 430 سعرة)"
-        />
-      ) : (
-        <span className="text-sm font-medium text-neutral-400 bg-neutral-950 px-3 py-1 rounded-full">
-          {meal.calories}
-        </span>
-      )}
-    </div>
+      </div>
 
-    <div className="p-6 grid gap-4">
-      {meal.options &&
-        meal.options.map((opt, oIdx) => (
-          <NutritionOption
-            key={oIdx}
-            opt={opt}
-            oIdx={oIdx}
-            isEditMode={isEditMode}
-            numOptions={meal.options.length}
-            onDelete={() => nutritionHook.deleteOption(planId, mealIndex, oIdx)}
-            onUpdate={(key, value) =>
-              nutritionHook.updateOption(planId, mealIndex, oIdx, key, value)
-            }
-          />
-        ))}
+      <div
+        className={`grid transition-all duration-500 ease-in-out ${
+          isMealExpanded || isEditMode
+            ? "grid-rows-[1fr] opacity-100"
+            : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <div className="p-6 grid gap-4">
+            {meal.options &&
+              meal.options.map((opt, oIdx) => (
+                <NutritionOption
+                  key={oIdx}
+                  opt={opt}
+                  oIdx={oIdx}
+                  isEditMode={isEditMode}
+                  numOptions={meal.options.length}
+                  onDelete={() =>
+                    nutritionHook.deleteOption(planId, mealIndex, oIdx)
+                  }
+                  onUpdate={(key, value) =>
+                    nutritionHook.updateOption(
+                      planId,
+                      mealIndex,
+                      oIdx,
+                      key,
+                      value,
+                    )
+                  }
+                />
+              ))}
 
-      {isEditMode && (
-        <button
-          onClick={() => nutritionHook.addOption(planId, mealIndex)}
-          className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-neutral-700 hover:border-emerald-500 hover:bg-emerald-500/5 text-neutral-400 hover:text-emerald-400 rounded-xl transition-colors font-bold"
-        >
-          <Plus className="w-4 h-4" /> إضافة خيار جديد للمكونات
-        </button>
-      )}
+            {isEditMode && (
+              <button
+                onClick={() => nutritionHook.addOption(planId, mealIndex)}
+                className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-neutral-700 hover:border-emerald-500 hover:bg-emerald-500/5 text-neutral-400 hover:text-emerald-400 rounded-xl transition-colors font-bold"
+              >
+                <Plus className="w-4 h-4" /> إضافة خيار جديد للمكونات
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default NutritionMealCard;

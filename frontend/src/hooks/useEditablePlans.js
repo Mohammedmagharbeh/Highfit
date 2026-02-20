@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
@@ -57,22 +57,6 @@ export const useEditablePlans = () => {
     }
   };
 
-  const timerRef = useRef({});
-
-  // Debounced auto-sync specifically for a given plan
-  const autoSyncToDB = (planId, updatedPlan) => {
-    if (timerRef.current[planId]) {
-      clearTimeout(timerRef.current[planId]);
-    }
-    timerRef.current[planId] = setTimeout(async () => {
-      try {
-        await axios.put(`${API_URL}/${planId}`, updatedPlan);
-      } catch (error) {
-        console.error("Autosave failed DB Sync:", error);
-      }
-    }, 1000); // Wait 1s after the user stops typing
-  };
-
   const addDay = (planId) => {
     setData((prev) => {
       const plan = prev[planId];
@@ -88,7 +72,6 @@ export const useEditablePlans = () => {
         ...plan,
         training: [...(plan.training || []), newDay],
       };
-      autoSyncToDB(planId, updatedPlan);
 
       return {
         ...prev,
@@ -104,7 +87,6 @@ export const useEditablePlans = () => {
       newTraining.splice(dayIndex, 1);
 
       const updatedPlan = { ...plan, training: newTraining };
-      autoSyncToDB(planId, updatedPlan);
 
       return {
         ...prev,
@@ -120,7 +102,6 @@ export const useEditablePlans = () => {
       newTraining[dayIndex] = { ...newTraining[dayIndex], [key]: value };
 
       const updatedPlan = { ...plan, training: newTraining };
-      autoSyncToDB(planId, updatedPlan);
 
       return {
         ...prev,
@@ -147,7 +128,6 @@ export const useEditablePlans = () => {
       };
 
       const updatedPlan = { ...plan, training: newTraining };
-      autoSyncToDB(planId, updatedPlan);
 
       return {
         ...prev,
@@ -168,7 +148,6 @@ export const useEditablePlans = () => {
       };
 
       const updatedPlan = { ...plan, training: newTraining };
-      autoSyncToDB(planId, updatedPlan);
 
       return {
         ...prev,
@@ -189,7 +168,6 @@ export const useEditablePlans = () => {
       };
 
       const updatedPlan = { ...plan, training: newTraining };
-      autoSyncToDB(planId, updatedPlan);
 
       return {
         ...prev,
