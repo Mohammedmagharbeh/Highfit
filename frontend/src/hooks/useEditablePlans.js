@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-// Fetch endpoints using env or fallback to localhost
 const API_URL = `${process.env.VITE_BASE_URL}/plans`;
 
 export const useEditablePlans = () => {
@@ -19,7 +18,6 @@ export const useEditablePlans = () => {
       if (dbData && Object.keys(dbData).length > 0) {
         setData(dbData);
       } else {
-        // If the database is empty, start with empty data
         setData({});
       }
     } catch (error) {
@@ -30,7 +28,6 @@ export const useEditablePlans = () => {
     }
   };
 
-  // Load purely from database on mount
   useEffect(() => {
     fetchPlans();
   }, []);
@@ -39,7 +36,6 @@ export const useEditablePlans = () => {
     fetchPlans();
   };
 
-  // Explicit Save Function to push changes entirely to the DB
   const saveToDatabase = async (silent = false) => {
     setIsSaving(true);
     let toastId;

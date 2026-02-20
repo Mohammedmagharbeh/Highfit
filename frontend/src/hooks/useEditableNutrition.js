@@ -48,7 +48,6 @@ export const useEditableNutrition = () => {
     fetchNutrition();
   };
 
-  // Explicit Save Function to push changes entirely to the DB
   const saveToDatabase = async (silent = false) => {
     setIsSaving(true);
     let toastId;

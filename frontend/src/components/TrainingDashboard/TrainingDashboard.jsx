@@ -14,7 +14,7 @@ const TrainingDashboard = ({
   nutritionHook,
 }) => {
   const [activePlanId, setActivePlanId] = useState(Object.keys(plansData)[0]);
-  const [activeSubTab, setActiveSubTab] = useState("training"); // training, nutrition
+  const [activeSubTab, setActiveSubTab] = useState("training");
 
   const activePlan = plansData[activePlanId] || Object.values(plansData)[0];
   const safePlanId =
@@ -38,7 +38,6 @@ const TrainingDashboard = ({
       className="min-h-screen bg-neutral-950 text-neutral-100 font-sans p-4 md:p-8"
       dir="rtl"
     >
-      {/* Header */}
       <div className="max-w-6xl mx-auto mb-12 text-center">
         <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
           {title}
@@ -49,7 +48,6 @@ const TrainingDashboard = ({
       </div>
 
       <div className="max-w-6xl mx-auto flex flex-col items-center">
-        {/* Level Selector */}
         <div className="grid grid-cols-3 gap-2 md:gap-4 mb-8 w-full md:w-auto">
           {Object.entries(plansData).map(([key, plan]) => (
             <PlanCard
@@ -61,9 +59,7 @@ const TrainingDashboard = ({
           ))}
         </div>
 
-        {/* Selected Plan Details */}
         <div className="w-full bg-neutral-900 rounded-3xl border border-neutral-800 overflow-hidden shadow-2xl">
-          {/* Sub-tab Navigation */}
           <DashboardTabs
             activeTab={activeSubTab}
             onTabChange={setActiveSubTab}

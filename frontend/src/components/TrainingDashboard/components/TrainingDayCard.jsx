@@ -104,7 +104,6 @@ const ExerciseItem = ({
         </div>
       </button>
 
-      {/* Expanded / Edit Mode Content */}
       <div
         className={`grid transition-all duration-500 ease-in-out ${
           isExpanded || isEditMode
@@ -114,7 +113,6 @@ const ExerciseItem = ({
       >
         <div className="overflow-hidden">
           <div className="p-4 pt-0 border-t border-neutral-800/50 mt-2 space-y-4">
-            {/* Description */}
             <div
               className={`flex gap-3 text-sm text-neutral-400 bg-neutral-950/50 p-3 rounded-lg border ${isEditMode ? "border-neutral-700" : "border-neutral-800/50"}`}
             >
@@ -131,7 +129,6 @@ const ExerciseItem = ({
               )}
             </div>
 
-            {/* Media Inputs for Edit Mode */}
             {isEditMode && (
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
