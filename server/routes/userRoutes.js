@@ -1,9 +1,9 @@
-
 const express = require("express");
 const routes = express.Router();
 const jwt = require("jsonwebtoken");
 const { generateOTP, sendOTP } = require("../../utils/otp");
 const User = require("../models/user");
+const validateJWT = require("../middleware/validateJWT"); // تأكد من المسار الصحيح للميدل وير
 
 // 1. إرسال الرمز (Login)
 routes.post("/login", async (req, res) => {
@@ -16,7 +16,7 @@ routes.post("/login", async (req, res) => {
 
     const otp = generateOTP();
     user.otp = otp;
-    user.otpExpires = Date.now() + 5 * 60 * 1000; // صلاحية 5 دقائق
+    user.otpExpires = Date.now() + 5 * 60 * 1000;
     await user.save();
 
     await sendOTP(phone, otp);
@@ -42,7 +42,7 @@ routes.post("/verify-otp", async (req, res) => {
     await user.save();
 
     const token = jwt.sign(
-      { id: user._id, role: user.role }, 
+      { id: user._id, role: user.role, phone: user.phone }, // أضفت الـ phone للتوكن عشان الميدل وير يلاقيه
       process.env.JWT_SECRET, 
       { expiresIn: "24h" }
     );
@@ -50,6 +50,16 @@ routes.post("/verify-otp", async (req, res) => {
     res.status(200).json({ token, user: { _id: user._id, phone: user.phone, role: user.role } });
   } catch (err) {
     res.status(500).json({ msg: err.message });
+  }
+});
+
+// 3. مسار جلب بياناتي الشخصية (ضروري جداً لـ UserContext)
+routes.get("/me", validateJWT, async (req, res) => {
+  try {
+    // الميدل وير validateJWT قام بالفعل بالبحث عن المستخدم ووضعه في req.user
+    res.status(200).json(req.user);
+  } catch (error) {
+    res.status(500).json({ msg: "Error fetching user data" });
   }
 });
 

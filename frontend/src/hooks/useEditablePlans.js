@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-const API_URL = `${process.env.VITE_BASE_URL}/plans`;
-
+const API_URL = `${import.meta.env.VITE_BASE_URL}/plans`;
 export const useEditablePlans = () => {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
