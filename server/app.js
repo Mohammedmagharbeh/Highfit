@@ -1,5 +1,3 @@
-
-
 // const express = require("express");
 // const cors = require("cors");
 // const bodyParser = require("body-parser"); // استخدمنا واحد فقط للوضوح
@@ -31,8 +29,8 @@
 // app.use("/api/plans", fitnessPlanRoutes);
 // app.use("/api/nutrition", nutritionRoutes);
 
-// app.use('/api/chef', require('./routes/chefRoutes')); 
-// app.use('/api/meals', require('./routes/mealRoutes')); 
+// app.use('/api/chef', require('./routes/chefRoutes'));
+// app.use('/api/meals', require('./routes/mealRoutes'));
 // app.use('/api/orders', require('./routes/orderRoutes'));
 
 // module.exports = app;
@@ -53,9 +51,9 @@ const server = http.createServer(app);
 // 2. إعداد الـ Socket.io مع السماح لكل الاتصالات (CORS)
 const io = new Server(server, {
   cors: {
-    origin: "*", 
-    methods: ["GET", "POST"]
-  }
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
 });
 
 // 3. تخزين io في app لاستخدامه في الـ Controllers (مهم جداً قبل الـ Routes)
@@ -70,14 +68,14 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 // استيراد الروابط
-const jobRoutes = require("../server/routes/jobRoutes");
-const applicationRoutes = require("../server/routes/applicationRoutes");
-const userRoutes = require("../server/routes/userRoutes");
+const jobRoutes = require("./routes/jobRoutes");
+const applicationRoutes = require("./routes/applicationRoutes");
+const userRoutes = require("./routes/userRoutes");
 const fitnessPlanRoutes = require("./routes/fitnessPlanRoutes");
 const nutritionRoutes = require("./routes/nutritionRoutes");
-const chefRoutes = require('./routes/chefRoutes');
-const mealRoutes = require('./routes/mealRoutes');
-const orderRoutes = require('./routes/orderRoutes');
+const chefRoutes = require("./routes/chefRoutes");
+const mealRoutes = require("./routes/mealRoutes");
+const orderRoutes = require("./routes/orderRoutes");
 
 // تسجيل الروابط
 app.use("/api/jobs", jobRoutes);
@@ -85,13 +83,12 @@ app.use("/api/apply", applicationRoutes);
 app.use("/api", userRoutes);
 app.use("/api/plans", fitnessPlanRoutes);
 app.use("/api/nutrition", nutritionRoutes);
-app.use('/api/chef', chefRoutes); 
-app.use('/api/meals', mealRoutes); 
-app.use('/api/orders', orderRoutes);
+app.use("/api/chef", chefRoutes);
+app.use("/api/meals", mealRoutes);
+app.use("/api/orders", orderRoutes);
 
 // مراقبة اتصال الشيف
-io.on("connection", (socket) => {
-});
+io.on("connection", (socket) => {});
 
 // تصدير الكائنين (تأكد من تعديل index.js لاستقبالهم)
 module.exports = { app, server };
