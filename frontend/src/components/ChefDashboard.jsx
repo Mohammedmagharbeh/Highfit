@@ -1,7 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
+
+
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
-  Plus, Utensils, Phone, ChefHat, User, UploadCloud, X, Volume2, Calendar as CalendarIcon, Trash2, Edit3 
+  Plus, ChefHat, User, UploadCloud, X, Volume2, 
+  Calendar as CalendarIcon, Trash2, Edit3, MapPin, Hash, Clock, ShoppingCart 
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import { io } from 'socket.io-client';
@@ -24,11 +27,10 @@ const ChefDashboard = () => {
     nameAr: '', nameEn: '', descAr: '', descEn: '', calories: '', price: '', image: '' 
   });
 
-  const config = { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } };
-
-  // دالة لإيجاد سعر الوجبة من مصفوفة الوجبات
-  const getMealData = (mealName) => {
-    return meals.find(m => m.name.ar === mealName) || null;
+  const config = { 
+    headers: { 
+      Authorization: `Bearer ${sessionStorage.getItem('token')}` 
+    } 
   };
 
   const closeDrawer = () => {
@@ -43,6 +45,17 @@ const ChefDashboard = () => {
     setEditingMealId(null);
     setNewMeal({ nameAr: '', nameEn: '', descAr: '', descEn: '', calories: '', price: '', image: '' });
     setIsAddMealOpen(true);
+  };
+
+  const fetchData = async () => {
+    try {
+      const [resOrders, resMeals] = await Promise.all([
+        axios.get(`${import.meta.env.VITE_BASE_URL}/orders`, config),
+        axios.get(`${import.meta.env.VITE_BASE_URL}/meals`)
+      ]);
+      setOrders(resOrders.data);
+      setMeals(resMeals.data);
+    } catch (err) { console.error(err); }
   };
 
   useEffect(() => {
@@ -60,27 +73,19 @@ const ChefDashboard = () => {
     return () => socket.off("newOrderArrived");
   }, [soundAllowed]);
 
-  const fetchData = async () => {
-    try {
-      const [resOrders, resMeals] = await Promise.all([
-        axios.get(`${import.meta.env.VITE_BASE_URL}/orders`, config),
-        axios.get(`${import.meta.env.VITE_BASE_URL}/meals`)
-      ]);
-      setOrders(resOrders.data);
-      setMeals(resMeals.data);
-    } catch (err) { console.error(err); }
-  };
-
   const handleAcceptOrder = async () => {
     if (!incomingOrder) return;
     try {
       if (activeAudio) { activeAudio.pause(); setActiveAudio(null); }
+      const mealNames = incomingOrder.items.map(i => i.mealName).join(', ');
       await axios.post(`${import.meta.env.VITE_BASE_URL}/orders/confirm-order`, {
-        phone: incomingOrder.userPhone || incomingOrder.phone,
-        mealName: incomingOrder.mealName
+        phone: incomingOrder.userPhone,
+        mealName: mealNames
       }, config);
+      
       setIncomingOrder(null);
-      toast.success("تم تأكيد الطلب ✅");
+      toast.success("تم تأكيد الطلب وإرسال SMS ✅");
+      fetchData();
     } catch (err) {
       setIncomingOrder(null);
       if (activeAudio) { activeAudio.pause(); setActiveAudio(null); }
@@ -111,6 +116,7 @@ const ChefDashboard = () => {
     <div className="min-h-screen bg-[#050505] text-white p-4 lg:p-8 font-sans flex flex-col lg:flex-row gap-6" dir="rtl">
       <Toaster position="top-center" />
 
+      {/* Side Nav */}
       <aside className="lg:w-20 w-full bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] flex lg:flex-col items-center py-8 gap-8 self-start order-last lg:order-first shadow-2xl">
         <ChefHat size={30} className="text-orange-500" />
         <div onClick={openAddMode} className="bg-orange-600 p-2 rounded-xl cursor-pointer hover:scale-110 transition-transform shadow-lg shadow-orange-600/20">
@@ -127,67 +133,96 @@ const ChefDashboard = () => {
           </div>
         </header>
 
-        {/* الطلبات الحية مع تفاصيل الأسعار */}
+        {/* Orders List */}
         <div className="space-y-6 mb-20">
-          {orders.filter(o => new Date(o.createdAt).toISOString().split('T')[0] === selectedDate).map(order => {
-            const mealData = getMealData(order.mealName);
-            const unitPrice = mealData ? parseFloat(mealData.price) : 0;
-            const totalPrice = unitPrice * order.quantity;
-
-            return (
-              <div key={order._id} className="bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] p-6 flex flex-col md:flex-row items-center gap-6 shadow-xl relative overflow-hidden group">
-                
-                {/* صورة الوجبة */}
-                <div className="w-24 h-24 rounded-3xl overflow-hidden border border-white/10 shrink-0">
-                  <img src={mealData?.image || ''} className="w-full h-full object-cover transition-transform group-hover:scale-110" alt="" />
+          {orders.filter(o => new Date(o.createdAt).toISOString().split('T')[0] === selectedDate).map(order => (
+            <div key={order._id} className="bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden group">
+              
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/5 pb-4 mb-4">
+                <div className="flex items-center gap-4">
+                   <div className="bg-orange-500/10 p-3 rounded-2xl text-orange-500 font-black flex items-center gap-1">
+                      <Hash size={16}/> {order.sequenceNumber}
+                   </div>
+                   <div>
+                      <h3 className="font-black text-lg">{order.userName}</h3>
+                      <p className="text-xs text-gray-500 font-mono">{order.userPhone}</p>
+                   </div>
                 </div>
-                
-                {/* الكمية */}
-                <div className="bg-white/5 px-6 py-4 rounded-3xl text-center border border-white/5">
-                  <span className="text-3xl font-black text-orange-500 italic">x{order.quantity}</span>
-                </div>
-
-                {/* المعلومات */}
-                <div className="flex-1 text-center md:text-right space-y-2">
-                  <h3 className="text-2xl font-black text-white">{order.mealName}</h3>
-                  
-                  <div className="flex flex-wrap justify-center md:justify-start gap-4">
-                    <span className="text-xs text-gray-400 font-bold uppercase flex items-center gap-1">
-                      <User size={14} className="text-orange-500"/> {order.userName}
-                    </span>
-                    <span className="text-xs text-gray-400 font-mono flex items-center gap-1">
-                      <Phone size={14} className="text-orange-500"/> {order.userPhone}
-                    </span>
-                  </div>
-
-                  {/* تفاصيل السعر داخل الكارد */}
-                  <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-2">
-                    <div className="bg-white/5 px-3 py-1 rounded-full border border-white/10">
-                      <span className="text-[10px] text-gray-500 ml-1">سعر الوحدة:</span>
-                      <span className="text-sm font-bold text-orange-400">{unitPrice} JOD</span>
-                    </div>
-                    <div className="bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20">
-                      <span className="text-[10px] text-orange-500/70 ml-1">المجموع الكلي:</span>
-                      <span className="text-sm font-black text-orange-500">{totalPrice.toFixed(2)} JOD</span>
-                    </div>
-                  </div>
-
-                  {/* ملاحظة الزبون */}
-                  {order.notes && (
-                    <div className="mt-4 p-3 bg-orange-500/10 border-r-4 border-orange-500 rounded-lg inline-block text-right min-w-[200px]">
-                      <span className="text-[10px] text-orange-500/70 block uppercase font-black mb-1">ملاحظة الزبون:</span>
-                      <p className="text-orange-100 text-sm font-medium italic">"{order.notes}"</p>
-                    </div>
-                  )}
+                <div className="flex items-center gap-3 text-xs text-gray-400">
+                   <span className="bg-white/5 px-3 py-1 rounded-full flex items-center gap-1">
+                      <MapPin size={12}/> {order.address || 'استلام من المحل'}
+                   </span>
+                   <span className="bg-white/5 px-3 py-1 rounded-full flex items-center gap-1 font-mono">
+                      <Clock size={12}/> {new Date(order.createdAt).toLocaleTimeString('ar-JO')}
+                   </span>
                 </div>
               </div>
-            );
-          })}
+
+              {/* Items in Order */}
+            {/* Items in Order - التعديل المضمون لظهور الصور */}
+<div className="space-y-4">
+  {order.items.map((item, index) => {
+    // 1. محاولة إيجاد بيانات الوجبة من قائمة meals المحملة عند الشيف
+    // نبحث بمطابقة الـ ID (نتأكد من تحويلهم لنصوص للمقارنة)
+    const mealData = meals.find(m => String(m._id) === String(item.mealId || item.productId));
+    
+    // 2. إذا لم يجد بالـ ID، نحاول البحث بالاسم (خطة احتياطية قوية)
+    const mealByName = !mealData ? meals.find(m => m.name?.ar === item.mealName) : null;
+
+    // 3. تحديد الصورة النهائية (الأولوية لبيانات المنيو الأصلية لأنها الأحدث)
+    const imgToShow = mealData?.image || mealByName?.image || item.mealImage || 'https://via.placeholder.com/150?text=No+Image';
+    
+    return (
+      <div key={index} className="flex items-center gap-4 bg-white/5 p-3 rounded-3xl border border-white/5 hover:bg-white/[0.08] transition-colors">
+        {/* صندوق الصورة */}
+        <div className="w-20 h-20 rounded-2xl overflow-hidden border border-white/10 bg-black flex-shrink-0">
+          <img 
+            src={imgToShow} 
+            className="w-full h-full object-cover" 
+            alt={item.mealName}
+            onLoad={() => console.log("Image Loaded:", imgToShow)}
+            onError={(e) => { 
+              console.log("Image Failed:", imgToShow);
+              e.target.onerror = null; 
+              e.target.src = 'https://via.placeholder.com/150?text=Meal'; 
+            }}
+          />
+        </div>
+        
+        <div className="flex-1">
+          <div className="flex justify-between items-start">
+            <div>
+              <span className="font-bold text-white text-base block">{item.mealName}</span>
+              {item.notes && (
+                <span className="text-[10px] text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-md mt-1 inline-block">
+                  ملاحظة: {item.notes}
+                </span>
+              )}
+            </div>
+            <span className="text-orange-500 font-black text-sm">{item.price} JOD</span>
+          </div>
+          <div className="flex justify-between items-center mt-2">
+            <span className="text-xs text-gray-400 font-medium">الكمية: <b className="text-orange-500 text-lg">x{item.quantity}</b></span>
+          </div>
+        </div>
+      </div>
+    );
+  })}
+</div>
+
+              <div className="mt-6 pt-4 border-t border-white/5 flex justify-between items-center">
+                 <span className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">Total Bill</span>
+                 <div className="text-2xl font-black text-white italic">
+                    {order.totalAmount?.toFixed(2)} <span className="text-orange-500 text-xs not-italic uppercase">JOD</span>
+                 </div>
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* المنيو */}
+        {/* Menu Management */}
         <div className="border-t border-white/5 pt-10">
-            <h2 className="text-gray-500 text-[10px] font-black mb-6 uppercase tracking-[0.3em]">Active Menu Management</h2>
+            <h2 className="text-gray-500 text-[10px] font-black mb-6 uppercase tracking-[0.3em]">Menu Management</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {meals.map(meal => (
                     <div key={meal._id} className="bg-[#0a0a0a] border border-white/5 p-4 rounded-3xl flex items-center gap-4 hover:border-orange-500/30 transition-all">
@@ -209,48 +244,72 @@ const ChefDashboard = () => {
         </div>
       </main>
 
-      {/* نافذة التنبيه (Dialog) */}
+      {/* New Order Notification Pop-up */}
       {incomingOrder && (
         <div className="fixed inset-0 bg-black/95 z-[400] flex items-center justify-center p-4 backdrop-blur-xl">
-          <div className="bg-[#111] border-2 border-orange-500 p-8 rounded-[3.5rem] max-w-sm w-full text-center shadow-2xl animate-in zoom-in">
-            <h2 className="text-2xl font-black mb-8 italic text-white uppercase tracking-wider">NEW ORDER! 🔔</h2>
-            
-            <div className="space-y-4 mb-10 text-right bg-white/5 p-6 rounded-[2rem] border border-white/5">
-              <div className="flex justify-between items-center border-b border-white/5 pb-3">
-                <span className="text-gray-500 text-[10px] font-bold uppercase">Meal:</span>
-                <span className="font-black text-orange-500 text-lg">{incomingOrder.mealName}</span>
+          <div className="bg-[#111] border-2 border-orange-500 p-8 rounded-[3.5rem] max-w-md w-full text-center shadow-[0_0_50px_rgba(249,115,22,0.2)] animate-in zoom-in">
+            <div className="flex flex-col items-center mb-6">
+              <div className="bg-orange-500 p-3 rounded-full mb-3 animate-bounce">
+                <ShoppingCart size={30} className="text-black" />
               </div>
-
-             <div className="flex justify-between items-center border-b border-white/5 pb-3">
-                <span className="text-gray-500 text-[10px] font-bold uppercase">Pricing:</span>
-                <div className="text-left">
-                  <div className="text-[10px] text-gray-400">Unit: {getMealData(incomingOrder.mealName)?.price || 0} JOD</div>
-                  <div className="font-black text-white">Total: {( (getMealData(incomingOrder.mealName)?.price || 0) * incomingOrder.quantity ).toFixed(2)} JOD</div>
-                </div>
-              </div>
-
-              <div className="flex justify-between items-center border-b border-white/5 pb-3">
-                <span className="text-gray-500 text-[10px] font-bold uppercase">Quantity:</span>
-                <span className="font-black text-white">{incomingOrder.quantity}</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-white/5 pb-3">
-                <span className="text-gray-500 text-[10px] font-bold uppercase">Client:</span>
-                <span className="font-bold text-white uppercase">{incomingOrder.userName}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-500 text-[10px] font-bold uppercase">Phone:</span>
-                <span className="font-mono text-white tracking-widest text-sm">{incomingOrder.userPhone || incomingOrder.phone}</span>
-              </div>
+              <h2 className="text-2xl font-black italic text-white uppercase tracking-wider">طلب جديد الآن! 🔔</h2>
             </div>
 
-            <button onClick={handleAcceptOrder} className="w-full bg-orange-600 py-6 rounded-[2rem] font-black text-black text-xl hover:bg-orange-500 shadow-xl transition-all active:scale-95">
-              ACCEPT & SEND SMS
+            <div className="bg-white/5 border border-white/10 rounded-3xl p-4 mb-6 flex items-center gap-4 text-right">
+              <div className="bg-orange-500/20 p-3 rounded-2xl text-orange-500"><User size={24} /></div>
+              <div>
+                <p className="text-gray-400 text-[10px] uppercase font-bold tracking-widest">العميل</p>
+                <h3 className="text-lg font-black text-white">{incomingOrder.userName}</h3>
+                <p className="text-sm text-orange-500 font-mono">{incomingOrder.userPhone}</p>
+              </div>
+            </div>
+            
+           {/* قائمة الوجبات بالصور داخل التنبيه - نسخة معدلة ومضمونة */}
+<div className="bg-white/5 p-4 rounded-[2rem] border border-white/5 mb-6 max-h-[250px] overflow-y-auto space-y-3 custom-scrollbar">
+  {incomingOrder.items.map((item, idx) => {
+    // البحث عن بيانات الوجبة في الـ meals المحملة عند الشيف لضمان الصورة
+    const mData = meals.find(m => 
+      String(m._id) === String(item.mealId || item.productId) || 
+      m.name?.ar === item.mealName
+    );
+
+    // تحديد الصورة: الأولوية للمنيو ثم البيانات القادمة من السوكت
+    const popImg = mData?.image || item.mealImage || 'https://via.placeholder.com/150';
+
+    return (
+      <div key={idx} className="flex gap-4 items-center text-right border-b border-white/5 pb-3 last:border-0">
+        <div className="w-14 h-14 rounded-xl overflow-hidden bg-black flex-shrink-0 border border-white/10">
+          <img 
+            src={popImg} 
+            className="w-full h-full object-cover" 
+            alt={item.mealName} 
+            onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=Meal'; }}
+          />
+        </div>
+        
+        <div className="flex-1">
+          <p className="text-sm font-bold text-white leading-tight">{item.mealName}</p>
+          <div className="flex justify-between items-center mt-1">
+             <span className="text-xs text-gray-500 font-black">x{item.quantity}</span>
+             <span className="text-xs text-orange-500 font-bold">{item.price} JOD</span>
+          </div>
+          {item.notes && (
+            <p className="text-[9px] text-orange-400 mt-1">ملاحظة: {item.notes}</p>
+          )}
+        </div>
+      </div>
+    );
+  })}
+</div>
+
+            <button onClick={handleAcceptOrder} className="w-full bg-orange-600 py-6 rounded-[2rem] font-black text-black text-xl hover:bg-orange-500 shadow-xl transition-all active:scale-95 uppercase italic">
+              Confirm & Process
             </button>
           </div>
         </div>
       )}
 
-      {/* Drawer الإضافة والتعديل */}
+      {/* Add/Edit Meal Drawer */}
       {isAddMealOpen && (
         <div className="fixed inset-0 z-[250] flex justify-start">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={closeDrawer} />
@@ -286,7 +345,7 @@ const ChefDashboard = () => {
         </div>
       )}
 
-      {/* زر تفعيل الصوت */}
+      {/* Sound Activation Overlay */}
       {!soundAllowed && (
         <div className="fixed inset-0 bg-black z-[500] flex flex-col items-center justify-center">
           <Volume2 size={80} className="text-orange-500 mb-6 animate-pulse" />
