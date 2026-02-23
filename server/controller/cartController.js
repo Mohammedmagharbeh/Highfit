@@ -1,5 +1,5 @@
 
-const Cart = require("../models/Cart");
+const Cart = require("../models/cart");
 
 // 1. عرض محتويات السلة للمستخدم
 exports.getCart = async (req, res, next) => { // ضفنا next هون
