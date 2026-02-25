@@ -59,7 +59,6 @@ function Header() {
                 </button>
               </>
             ) : (
-              // وضع المسجلين: الروابط + زر Logout بنفس تصميم Join Now
               <>
                 {NAV_LINKS.map((link) => (
                   <Link 

@@ -8,9 +8,7 @@ function generateOTP() {
   return Math.floor(1000 + Math.random() * 9000).toString();
 }
 
-/**
- * إرسال رمز التحقق (OTP) للجم
- */
+
 async function sendOTP(phone, otp) {
   const senderid = "HIGH FIT"; // معرف المرسل الخاص بك
   const accname = "highfit";

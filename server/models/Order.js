@@ -114,6 +114,86 @@
 // });
 
 // module.exports = mongoose.model('Order', orderSchema);
+
+
+// const mongoose = require('mongoose');
+
+// const orderSchema = new mongoose.Schema({
+//   user: { 
+//     type: mongoose.Schema.Types.ObjectId, 
+//     ref: 'User', 
+//     required: false 
+//   },
+//   userName: { type: String, required: true },
+//   userPhone: { type: String, required: true },
+  
+//   // المصفوفة الجديدة لدعم نظام السلة
+//   items: [
+//     {
+//       mealName: { type: String, required: true },
+//       quantity: { type: Number, required: true, default: 1 },
+//       price: { type: Number },
+//       notes: { type: String, default: "" }
+//     }
+//   ],
+
+//   totalAmount: { type: Number, required: true },
+
+//   sequenceNumber: { 
+//     type: Number, 
+//     unique: true 
+//   },
+
+//   orderType: {
+//     type: String,
+//     enum: ["delivery", "pickup"],
+//     required: true,
+//     default: "pickup"
+//   },
+
+//   addressDetails: {
+//     area: { type: String },
+//     street: { type: String },
+//     apartment: { type: String },
+//   },
+
+//   status: { 
+//     type: String, 
+//     enum: ['Pending', 'Accepted', 'Done', 'Cancelled'],
+//     default: 'Pending' 
+//   },
+  
+//   notes: { type: String, default: "" }
+
+// }, { timestamps: true });
+
+// // --- تعديل منطق الـ Sequence Number (إزالة next) ---
+// orderSchema.pre("save", async function () { 
+//   const doc = this;
+
+//   if (doc.isNew) {
+//     try {
+//       // البحث عن آخر رقم تسلسلي
+//       const lastOrder = await mongoose
+//         .model("Order")
+//         .findOne({}, { sequenceNumber: 1 })
+//         .sort({ sequenceNumber: -1 });
+
+//       if (lastOrder && lastOrder.sequenceNumber) {
+//         doc.sequenceNumber = lastOrder.sequenceNumber + 1;
+//       } else {
+//         // البدء من الرقم المطلوب 3140
+//         doc.sequenceNumber = 3140;
+//       }
+//       // لاحظ: لا نحتاج لمناداة next() هنا لأن الدالة async
+//     } catch (error) {
+//       console.error("Error in sequenceNumber hook:", error);
+//       throw error; // رمي الخطأ يوقف عملية الحفظ بشكل صحيح
+//     }
+//   }
+// });
+
+// module.exports = mongoose.model('Order', orderSchema);
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
@@ -125,10 +205,11 @@ const orderSchema = new mongoose.Schema({
   userName: { type: String, required: true },
   userPhone: { type: String, required: true },
   
-  // المصفوفة الجديدة لدعم نظام السلة
+  // المصفوفة المحدثة لدعم الصور
   items: [
     {
       mealName: { type: String, required: true },
+      mealImage: { type: String, default: "" }, // أضفنا هذا الحقل لحفظ رابط الصورة
       quantity: { type: Number, required: true, default: 1 },
       price: { type: Number },
       notes: { type: String, default: "" }
@@ -136,6 +217,7 @@ const orderSchema = new mongoose.Schema({
   ],
 
   totalAmount: { type: Number, required: true },
+  deliveryCost: { type: Number, default: 0 }, // أضفنا هذا الحقل لحفظ سعر التوصيل منفصل
 
   sequenceNumber: { 
     type: Number, 
@@ -149,6 +231,10 @@ const orderSchema = new mongoose.Schema({
     default: "pickup"
   },
 
+  // أضفنا حقل address صريح لاستقبال النص المدمج من الـ Checkout
+  address: { type: String }, 
+
+  // أبقينا على addressDetails للمستقبل إذا أردت تفصيلهم
   addressDetails: {
     area: { type: String },
     street: { type: String },
@@ -165,13 +251,11 @@ const orderSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-// --- تعديل منطق الـ Sequence Number (إزالة next) ---
+// --- منطق الـ Sequence Number ---
 orderSchema.pre("save", async function () { 
   const doc = this;
-
   if (doc.isNew) {
     try {
-      // البحث عن آخر رقم تسلسلي
       const lastOrder = await mongoose
         .model("Order")
         .findOne({}, { sequenceNumber: 1 })
@@ -180,13 +264,11 @@ orderSchema.pre("save", async function () {
       if (lastOrder && lastOrder.sequenceNumber) {
         doc.sequenceNumber = lastOrder.sequenceNumber + 1;
       } else {
-        // البدء من الرقم المطلوب 3140
         doc.sequenceNumber = 3140;
       }
-      // لاحظ: لا نحتاج لمناداة next() هنا لأن الدالة async
     } catch (error) {
       console.error("Error in sequenceNumber hook:", error);
-      throw error; // رمي الخطأ يوقف عملية الحفظ بشكل صحيح
+      throw error;
     }
   }
 });

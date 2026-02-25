@@ -77,6 +77,7 @@ const chefRoutes = require("./routes/chefRoutes");
 const mealRoutes = require("./routes/mealRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const cartRoutes = require("./routes/cartRoutes");
+const locationRoutes = require("./routes/locationsRoutes");
 
 // تسجيل الروابط
 app.use("/api/jobs", jobRoutes);
@@ -88,6 +89,7 @@ app.use("/api/chef", chefRoutes);
 app.use("/api/meals", mealRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/locations", locationRoutes);
 
 // مراقبة اتصال الشيف
 io.on("connection", (socket) => {});
