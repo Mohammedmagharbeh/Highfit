@@ -1,3 +1,5 @@
+
+
 "use client";
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -5,12 +7,13 @@ import { Toaster, toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { 
   Briefcase, User, Mail, Phone, Globe, GraduationCap, 
-  Calendar, Upload, ChevronRight, CheckCircle2, Info
+  Calendar, Upload, ChevronRight, ChevronLeft, CheckCircle2, Info
 } from "lucide-react";
 
 export default function JobsPage() {
   const { t, i18n } = useTranslation();
   const currentLang = i18n.language;
+  const isAr = currentLang === "ar";
 
   const [jobs, setJobs] = useState([]);
   const [form, setForm] = useState({
@@ -39,7 +42,7 @@ export default function JobsPage() {
       const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/jobs`);
       setJobs(res.data);
     } catch (err) {
-      toast.error(t("failed_load_jobs") || "Failed to load jobs");
+      toast.error(t("failed_load_jobs"));
     }
   };
 
@@ -50,11 +53,11 @@ export default function JobsPage() {
   const validateForm = () => {
     const phoneRegex = /^\d{10}$/;
     if (!form.jobId || !form.applicantName || !form.applicantEmail || !form.phone) {
-      toast.error(t("fill_required_fields") || "Please fill required fields");
+      toast.error(t("fill_required_fields"));
       return false;
     }
     if (!phoneRegex.test(form.phone)) {
-      toast.error(t("invalid_phone_10_digits") || "Invalid phone number");
+      toast.error(t("invalid_phone_10_digits"));
       return false;
     }
     return true;
@@ -72,7 +75,7 @@ export default function JobsPage() {
       await axios.post(`${import.meta.env.VITE_BASE_URL}/apply`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      toast.success(t("application_success") || "Application sent!");
+      toast.success(t("application_success"));
       setForm({
         applicantName: "", applicantEmail: "", phone: "", nationality: "",
         education: "", age: "", startDate: "", resume: null,
@@ -80,17 +83,17 @@ export default function JobsPage() {
         previousTitle: "", jobId: "",
       });
     } catch (err) {
-      toast.error(t("application_error") || "Error sending application");
+      toast.error(t("application_error"));
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans" dir={currentLang === "ar" ? "rtl" : "ltr"}>
+    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans pb-20 pt-28" dir={isAr ? "rtl" : "ltr"}>
       <Toaster position="top-center" />
 
       {/* Hero Header */}
       <div className="relative py-16 sm:py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-orange-500/5 skew-y-3 origin-left"></div>
+        <div className={`absolute inset-0 bg-orange-500/5 ${isAr ? "-skew-y-3 origin-right" : "skew-y-3 origin-left"}`}></div>
         <div className="max-w-6xl mx-auto px-4 relative z-10 text-center">
           <h1 className="text-4xl sm:text-6xl font-black italic tracking-tighter mb-4">
             <span className="text-orange-500">HIGH</span> FIT CAREERS
@@ -126,7 +129,7 @@ export default function JobsPage() {
                   }`}
                 >
                   <div className="flex justify-between items-start">
-                    <div>
+                    <div className={isAr ? "text-right" : "text-left"}>
                       <h3 className={`text-xl font-bold mb-1 ${form.jobId === job._id ? "text-white" : "text-orange-500"}`}>
                         {currentLang === "ar" ? job.title.ar : job.title.en}
                       </h3>
@@ -137,7 +140,11 @@ export default function JobsPage() {
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
                       form.jobId === job._id ? "bg-white text-orange-500" : "bg-white/5 text-white/20"
                     }`}>
-                      {form.jobId === job._id ? <CheckCircle2 size={24}/> : <ChevronRight size={24}/>}
+                      {form.jobId === job._id ? (
+                        <CheckCircle2 size={24}/>
+                      ) : (
+                        isAr ? <ChevronLeft size={24}/> : <ChevronRight size={24}/>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -155,32 +162,36 @@ export default function JobsPage() {
             
             <div className="p-8 sm:p-12">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {/* Inputs Grid */}
-                <InputField icon={<User size={18}/>} label={t("your_name")} value={form.applicantName} onChange={v => setForm({...form, applicantName: v})} />
-                <InputField icon={<Mail size={18}/>} label={t("your_email")} type="email" value={form.applicantEmail} onChange={v => setForm({...form, applicantEmail: v})} />
-                <InputField icon={<Phone size={18}/>} label={t("phone")} type="number" value={form.phone} onChange={v => setForm({...form, phone: v})} />
-                <InputField icon={<Globe size={18}/>} label={t("nationality")} value={form.nationality} onChange={v => setForm({...form, nationality: v})} />
-                <InputField icon={<GraduationCap size={18}/>} label={t("education")} value={form.education} onChange={v => setForm({...form, education: v})} />
-                <InputField icon={<Info size={18}/>} label={t("age")} value={form.age} onChange={v => setForm({...form, age: v})} />
+                <InputField isAr={isAr} icon={<User size={18}/>} label={t("your_name")} value={form.applicantName} onChange={v => setForm({...form, applicantName: v})} />
+                <InputField isAr={isAr} icon={<Mail size={18}/>} label={t("your_email")} type="email" value={form.applicantEmail} onChange={v => setForm({...form, applicantEmail: v})} />
+                <InputField isAr={isAr} icon={<Phone size={18}/>} label={t("phone")} type="number" value={form.phone} onChange={v => setForm({...form, phone: v})} />
+                <InputField isAr={isAr} icon={<Globe size={18}/>} label={t("nationality")} value={form.nationality} onChange={v => setForm({...form, nationality: v})} />
+                <InputField isAr={isAr} icon={<GraduationCap size={18}/>} label={t("education")} value={form.education} onChange={v => setForm({...form, education: v})} />
+                <InputField isAr={isAr} icon={<Info size={18}/>} label={t("age")} value={form.age} onChange={v => setForm({...form, age: v})} />
                 
-                <div className="sm:col-span-2">
-                    <label className="text-xs font-bold text-white/40 uppercase mb-2 block">{t("start_date")}</label>
+                <div className="sm:col-span-2 text-right">
+                    <label className={`text-xs font-bold text-white/40 uppercase mb-2 block ${isAr ? "text-right" : "text-left"}`}>{t("start_date")}</label>
                     <div className="relative">
-                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-500" size={18}/>
-                        <input type="date" value={form.startDate} onChange={e => setForm({...form, startDate: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 outline-none focus:border-orange-500 transition-all"/>
+                        <Calendar className={`absolute ${isAr ? "right-4" : "left-4"} top-1/2 -translate-y-1/2 text-orange-500`} size={18}/>
+                        <input 
+                          type="date" 
+                          value={form.startDate} 
+                          onChange={e => setForm({...form, startDate: e.target.value})} 
+                          className={`w-full bg-white/5 border border-white/10 rounded-xl py-4 ${isAr ? "pr-12 pl-4 text-right" : "pl-12 pr-4 text-left"} outline-none focus:border-orange-500 transition-all`}
+                        />
                     </div>
                 </div>
               </div>
 
               {/* Files */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8">
-                <FileUploader label={t("resume")} onChange={e => handleFileChange(e, "resume")} />
-                <FileUploader label={t("experience_certificate")} onChange={e => handleFileChange(e, "experienceCertificate")} />
+                <FileUploader isAr={isAr} label={t("resume")} onChange={e => handleFileChange(e, "resume")} />
+                <FileUploader isAr={isAr} label={t("experience_certificate")} onChange={e => handleFileChange(e, "experienceCertificate")} />
               </div>
 
               {/* Experience Radio */}
               <div className="mt-10 p-6 bg-white/5 rounded-2xl border border-white/10">
-                <p className="font-bold mb-4 flex items-center gap-2">
+                <p className={`font-bold mb-4 flex items-center gap-2 ${isAr ? "flex-row" : "flex-row"}`}>
                     <CheckCircle2 className="text-orange-500" size={20}/> {t("worked_before")}
                 </p>
                 <div className="flex gap-6">
@@ -197,8 +208,8 @@ export default function JobsPage() {
 
                 {form.workedBefore === "yes" && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 animate-in zoom-in-95">
-                    <input placeholder={t("previous_workplace")} value={form.previousJobs} onChange={e => setForm({...form, previousJobs: e.target.value})} className="bg-[#1a1a1a] border border-white/10 rounded-xl p-4 outline-none focus:border-orange-500"/>
-                    <input placeholder={t("previous_title")} value={form.previousTitle} onChange={e => setForm({...form, previousTitle: e.target.value})} className="bg-[#1a1a1a] border border-white/10 rounded-xl p-4 outline-none focus:border-orange-500"/>
+                    <input placeholder={t("previous_workplace")} value={form.previousJobs} onChange={e => setForm({...form, previousJobs: e.target.value})} className={`bg-[#1a1a1a] border border-white/10 rounded-xl p-4 outline-none focus:border-orange-500 ${isAr ? "text-right" : "text-left"}`}/>
+                    <input placeholder={t("previous_title")} value={form.previousTitle} onChange={e => setForm({...form, previousTitle: e.target.value})} className={`bg-[#1a1a1a] border border-white/10 rounded-xl p-4 outline-none focus:border-orange-500 ${isAr ? "text-right" : "text-left"}`}/>
                   </div>
                 )}
               </div>
@@ -217,32 +228,31 @@ export default function JobsPage() {
   );
 }
 
-// Sub-components for cleaner code
-function InputField({ icon, label, type="text", value, onChange }) {
+function InputField({ icon, label, type="text", value, onChange, isAr }) {
     return (
         <div className="relative group">
-            <label className="text-xs font-bold text-white/40 uppercase mb-2 block px-1 group-focus-within:text-orange-500 transition-colors">{label}</label>
+            <label className={`text-xs font-bold text-white/40 uppercase mb-2 block px-1 group-focus-within:text-orange-500 transition-colors ${isAr ? "text-right" : "text-left"}`}>{label}</label>
             <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-500">{icon}</div>
+                <div className={`absolute ${isAr ? "right-4" : "left-4"} top-1/2 -translate-y-1/2 text-orange-500`}>{icon}</div>
                 <input 
                     type={type} 
                     value={value} 
                     onChange={e => onChange(e.target.value)}
                     placeholder={label}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 outline-none focus:border-orange-500 transition-all placeholder:text-white/10"
+                    className={`w-full bg-white/5 border border-white/10 rounded-xl py-4 ${isAr ? "pr-12 pl-4 text-right" : "pl-12 pr-4 text-left"} outline-none focus:border-orange-500 transition-all placeholder:text-white/10`}
                 />
             </div>
         </div>
     );
 }
 
-function FileUploader({ label, onChange }) {
+function FileUploader({ label, onChange, isAr }) {
     return (
         <div className="group">
-            <label className="text-xs font-bold text-white/40 uppercase mb-2 block">{label}</label>
+            <label className={`text-xs font-bold text-white/40 uppercase mb-2 block ${isAr ? "text-right" : "text-left"}`}>{label}</label>
             <div className="relative border-2 border-dashed border-white/10 rounded-2xl p-4 hover:border-orange-500/50 hover:bg-orange-500/5 transition-all">
                 <input type="file" onChange={onChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
-                <div className="flex items-center gap-3 text-white/60 group-hover:text-white transition-colors">
+                <div className={`flex items-center gap-3 text-white/60 group-hover:text-white transition-colors ${isAr ? "flex-row-reverse" : ""}`}>
                     <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center"><Upload size={18}/></div>
                     <span className="text-sm font-medium italic">{label}</span>
                 </div>
