@@ -1,28 +1,67 @@
 {
-
   "admin": {
-  "title": "High Fit",
-  "console": "لوحة التحكم",
-  "packageSettings": "إعدادات الباقات",
-  "packageName": "اسم الباقة",
-  "packageType": "النوع (مثلاً: حديد)",
-  "duration": "المدة (كتابة)",
-  "price": "السعر",
-  "addPackage": "إضافة باقة",
-  "updatePackage": "تحديث الباقة",
+    "title": "High Fit",
+    "console": "لوحة التحكم"
+  },
+
+  "dir": "rtl",
+
+  "all_months": "كل الشهور",
+  "january": "يناير",
+  "february": "فبراير",
+  "march": "مارس",
+  "april": "أبريل",
+  "may": "مايو",
+  "june": "يونيو",
+  "july": "يوليو",
+  "august": "أغسطس",
+  "september": "سبتمبر",
+  "october": "أكتوبر",
+  "november": "نوفمبر",
+  "december": "ديسمبر",
+
+  "confirm_delete": "هل أنت متأكد من الحذف؟",
+  "delete_success": "تم الحذف بنجاح",
+  "delete_error": "حدث خطأ أثناء الحذف",
+
+  "update_success": "تم التحديث بنجاح",
+  "add_success": "تمت الإضافة بنجاح",
+  "process_error": "حدث خطأ أثناء العملية",
+
+  "manage_plans": "إدارة الخطط",
+  "name_ar": "اسم الخطة بالعربي",
+  "name_en": "اسم الخطة بالإنجليزي",
+  "placeholder_ar": "ادخل الاسم بالعربي",
+  "placeholder_en": "Enter English Name",
+  "plan_description": "وصف الخطة",
+  "placeholder_desc": "ادخل وصف الخطة",
+
+  "prices_durations": "الأسعار والمدد",
+  "duration": "المدة",
+  "add_price_option": "إضافة خيار سعر",
+
+  "update_plan": "تحديث الخطة",
+  "save_plan": "حفظ الخطة",
+
+  "active_plans": "الخطط النشطة",
   "edit": "تعديل",
   "delete": "حذف",
-  "playersMonitoring": "مراقبة اللاعبين",
-  "exportExcel": "Excel",
-  "searchByName": "بحث بالاسم...",
-  "playerInfo": "بيانات اللاعب",
-  "nationalId": "الرقم الوطني",
-  "selectedPlan": "الخطة المختارة",
-  "remainingDays": "متبقي لنهاية الاشتراك",
-  "day": "يوم",
-  "active": "مفعل ✓",
-  "expired": "منتهي ✕"
-},
+
+  "player_monitoring": "مراقبة المشتركين",
+  "export_excel": "تصدير إكسل",
+
+  "search_placeholder": "ابحث بالاسم...",
+
+  "player_data": "بيانات المشترك",
+  "national_id": "الرقم الوطني",
+  "sub_date": "تاريخ الاشتراك",
+  "plan": "الخطة",
+  "date": "التاريخ",
+  "remaining": "المتبقي",
+  "days_left": "الأيام المتبقية",
+  "days_unit": "يوم",
+  "expired": "منتهي",
+
   "home": "الرئيسية",
   "about": "من نحن",
   "back_to_arena": "الصفحة الرئيسية",
@@ -37,6 +76,7 @@
   "phone_placeholder": "7XXXXXXXX",
   "send_failed": "خطأ في إرسال الرمز",
   "invalid_otp": "الرمز غير صحيح",
+
   "programs": "البرامج",
   "features": "المميزات",
   "nav_contact": "اتصل بنا",
@@ -48,6 +88,7 @@
   "orders": "طلباتي",
   "chef_dashboard": "لوحة الشيف",
   "cart": "السلة",
+
   "premium_exp": "تجربة مميزة",
   "error_fetch_menu": "فشل في تحميل المنيو",
   "login_required": "يرجى تسجيل الدخول أولاً",
@@ -55,6 +96,7 @@
   "added": "تمت إضافة",
   "to_cart_success": "للسلة بنجاح!",
   "error_adding": "حدث خطأ أثناء الإضافة",
+
   "cal": "سعرة",
   "currency": "دينار",
   "no_image": "لا توجد صورة",
@@ -62,16 +104,19 @@
   "notes_placeholder": "ملاحظات إضافية...",
   "add_to_cart_btn": "إضافة للسلة",
   "view_cart": "مشاهدة السلة",
+
   "cart_empty_title": "سلتك فارغة",
   "cart_empty_desc": "يبدو أنك لم تضف أي وجبات لذيذة بعد!",
   "browse_menu": "تصفح القائمة",
   "shopping_cart": "عربة التسوق",
   "error_update_qty": "فشل تحديث الكمية",
+
   "subtotal": "المجموع الفرعي",
   "total_amount": "الإجمالي الكلي",
   "checkout_btn": "الانتقال للدفع",
   "checkout_title": "الدفع",
   "items": "أصناف",
+
   "delivery": "التوصيل",
   "pickup": "من المحل",
   "receiver_info": "معلومات المستلم",
@@ -86,6 +131,7 @@
   "select_area_error": "يرجى اختيار المنطقة للتوصيل",
   "order_success_msg": "تم تأكيد طلبك بنجاح! 🎉",
   "order_error_msg": "حدث خطأ أثناء معالجة الطلب",
+
   "join_team": "انضم إلى فريقنا المتميز",
   "available_jobs": "الوظائف المتاحة",
   "no_jobs": "لا توجد وظائف شاغرة حالياً",
@@ -110,6 +156,7 @@
   "invalid_phone_10_digits": "رقم الهاتف يجب أن يتكون من 10 أرقام",
   "application_success": "تم إرسال طلبك بنجاح!",
   "application_error": "حدث خطأ أثناء إرسال الطلب",
+
   "chef_dashboard_title": "محطة المطبخ",
   "active_orders": "الطلبات النشطة",
   "no_orders": "لا توجد طلبات لهذا التاريخ",
@@ -128,7 +175,7 @@
   "create_btn": "إنشاء الوجبة",
   "total": "المجموع",
   "notes": "الملاحظات",
-  
+
   "adminJobs": {
     "title": "لوحة إدارة الوظائف",
     "new_job": "وظيفة جديدة",
@@ -158,8 +205,37 @@
       "cancel": "إلغاء"
     }
   },
+
   "contact": {
     "email": "راسلنا على info@highfit.com",
     "address": "123 شارع النادي"
-  }
+  },
+  
+  "plans.loading": "HIGH FIT IS LOADING...",
+  "plans.title": "باقات",
+  "plans.highlight": "الاشتراك",
+  "plans.subtitle": "لا أعذار، فقط نتائج",
+  "plans.defaultDescription": "استمتع بأفضل تجربة تدريب في High Fit.",
+  "plans.subscribeNow": "اشترك الآن",
+
+    "subscriptions": "إدارة الاشتراكات",
+    "Package": "الباقات",
+  
+  "modal.title": "تأكيد الاشتراك",
+  "modal.loading": "جاري التحميل...",
+  "modal.loginRequired": "يرجى تسجيل الدخول",
+  "modal.phone": "الهاتف",
+  "modal.fullName": "الاسم الكامل",
+  "modal.fullNamePlaceholder": "الاسم الثلاثي",
+  "modal.nationalId": "الرقم الوطني",
+  "modal.nationalIdPlaceholder": "10 أرقام",
+  "modal.plan": "الباقة",
+  "modal.price": "السعر:",
+  "modal.submit": "إرسال الطلب الآن",
+
+  "validation.nationalIdLength": "❌ الرقم الوطني 10 خانات",
+  "validation.ageRestriction": "التسجيل متاح لـ +18 فقط (عمرك الحالي {{age}})",
+  "validation.success": "✅ تم إرسال الطلب!",
+  "validation.networkError": "❌ حدث خطأ في الشبكة"
+
 }

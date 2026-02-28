@@ -33,7 +33,7 @@ export const NAV_LINKS = [
   { to: "/JobsPage", label: "jobs", icon: UserCircle },
   { to: "/chef", label: "chef_dashboard", icon: ClipboardList },
   { to: "/adminjobs", label: "admin_jobs", icon: LayoutDashboard },
-  { to: "/admin/subscriptions", label: "تحكم الباقات", icon: LayoutDashboard },
-  {to: "/plan", label: "الباقات", icon: ClipboardList },
+  { to: "/admin/subscriptions", label: "subscriptions", icon: LayoutDashboard },
+  {to: "/plan", label: "Package", icon: ClipboardList },
   
 ];
