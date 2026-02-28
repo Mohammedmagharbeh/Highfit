@@ -12,9 +12,13 @@ import ProtectedRoute from "./ProtectedRoute";
 import Cart from "./components/Cart";
 import Checkout from "./components/Checkout";
 import Header from "./components/Header"; 
+import SubscriptionCard from "./components/SubscriptionCard";
+import AdminSubs from "./components/AdminSubs";
+import Plans from "./components/Plans";
 import { CartProvider } from "./context/CartContext"; 
 import { UserProvider } from "./context/userContext";
 import { useTranslation } from "react-i18next";
+
 import "./index.css";
 import "./i18n"; 
 
@@ -28,6 +32,9 @@ function AppContent() {
       
       <main className="pt-24 min-h-screen bg-[#0a0a0a]">
         <Routes>
+          <Route path="/subscriptions" element={<SubscriptionCard />} />
+<Route path="/plan" element={<Plans />} />
+          <Route path="/admin/subscriptions" element={<AdminSubs />} />
           <Route path="/log" element={<LoginPage />} /> 
           <Route path="/" element={<Home />} /> 
           <Route path="/adminjobs" element={<ProtectedRoute><AdminJobs /></ProtectedRoute>} />

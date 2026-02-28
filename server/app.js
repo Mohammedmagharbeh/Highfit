@@ -34,6 +34,7 @@
 // app.use('/api/orders', require('./routes/orderRoutes'));
 
 // module.exports = app;
+
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -78,6 +79,10 @@ const mealRoutes = require("./routes/mealRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const locationRoutes = require("./routes/locationsRoutes");
+const subRoutes = require("./routes/subRoutes");
+const SubOrderRoutes = require("./routes/subOrderRoutes");
+
+
 
 // تسجيل الروابط
 app.use("/api/jobs", jobRoutes);
@@ -90,6 +95,10 @@ app.use("/api/meals", mealRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/locations", locationRoutes);
+app.use("/api/subscriptions", subRoutes);
+app.use("/api/sub-orders", SubOrderRoutes);
+app.use("/api/users", userRoutes);
+
 
 // مراقبة اتصال الشيف
 io.on("connection", (socket) => {});

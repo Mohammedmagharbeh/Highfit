@@ -1,4 +1,28 @@
 {
+
+  "admin": {
+  "title": "High Fit",
+  "console": "لوحة التحكم",
+  "packageSettings": "إعدادات الباقات",
+  "packageName": "اسم الباقة",
+  "packageType": "النوع (مثلاً: حديد)",
+  "duration": "المدة (كتابة)",
+  "price": "السعر",
+  "addPackage": "إضافة باقة",
+  "updatePackage": "تحديث الباقة",
+  "edit": "تعديل",
+  "delete": "حذف",
+  "playersMonitoring": "مراقبة اللاعبين",
+  "exportExcel": "Excel",
+  "searchByName": "بحث بالاسم...",
+  "playerInfo": "بيانات اللاعب",
+  "nationalId": "الرقم الوطني",
+  "selectedPlan": "الخطة المختارة",
+  "remainingDays": "متبقي لنهاية الاشتراك",
+  "day": "يوم",
+  "active": "مفعل ✓",
+  "expired": "منتهي ✕"
+},
   "home": "الرئيسية",
   "about": "من نحن",
   "back_to_arena": "الصفحة الرئيسية",
@@ -104,6 +128,7 @@
   "create_btn": "إنشاء الوجبة",
   "total": "المجموع",
   "notes": "الملاحظات",
+  
   "adminJobs": {
     "title": "لوحة إدارة الوظائف",
     "new_job": "وظيفة جديدة",
