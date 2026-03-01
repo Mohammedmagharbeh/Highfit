@@ -1,5 +1,4 @@
 
-// module.exports = router;
 
 const router = require('express').Router();
 const SubOrder = require('../models/SubOrder');
@@ -8,17 +7,16 @@ const auth = require('../middleware/validateJWT');
 // 1. طلب اشتراك جديد (للمستخدم)
 router.post('/subscribe', auth, async (req, res) => {
   try {
-    // التعديل هنا: أضفنا customerDetails لاستقبال الاسم والثلاثي والرقم من الفرونت إند
     const { subscriptionId, planDetails, customerDetails } = req.body;
 
     if (!subscriptionId || !planDetails || !customerDetails) {
-      return res.status(400).json({ msg: "يرجى إرسال كافة تفاصيل الاشتراك بما فيها الاسم والرقم" });
+      return res.status(400).json({ msg: "يرجى إرسال كافة تفاصيل الاشتراك" });
     }
 
     const newOrder = new SubOrder({
       user: req.user.id, 
       subscriptionId,
-      customerDetails, // تخزين الاسم الثلاثي ورقم الهاتف هنا
+      customerDetails,
       planDetails,
       status: 'pending' 
     });
@@ -26,7 +24,6 @@ router.post('/subscribe', auth, async (req, res) => {
     await newOrder.save();
     res.status(201).json({ msg: "تم إرسال طلب الاشتراك بنجاح!" });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ msg: "فشل في عملية الاشتراك" });
   }
 });
@@ -34,28 +31,27 @@ router.post('/subscribe', auth, async (req, res) => {
 // 2. جلب كافة الطلبات (للأدمن)
 router.get('/admin/all', async (req, res) => {
   try {
-    // جلب الطلبات، وإذا كنت تريد بيانات اليوزر الأساسية (إيميله مثلاً) استخدم populate
     const orders = await SubOrder.find().sort({ createdAt: -1 });
     res.json(orders);
   } catch (err) {
-    console.error("ERROR IN SERVER:", err);
-    res.status(500).json({ msg: "خطأ داخلي في السيرفر", error: err.message });
+    res.status(500).json({ msg: "خطأ داخلي في السيرفر" });
   }
 });
 
-// 3. تفعيل الاشتراك
-router.put('/activate/:id', auth, async (req, res) => {
+// 3. قبول الطلب وتغيير حالته (المزامنة)
+// استخدمنا PATCH هنا لتحديث جزئي وهو الأفضل برمجياً
+// تحديث حالة الطلب إلى active (قبول)
+router.patch('/:id/accept', auth, async (req, res) => {
   try {
     const order = await SubOrder.findById(req.params.id);
     if (!order) return res.status(404).json({ msg: "الطلب غير موجود" });
 
-    order.status = 'active';
+    order.status = 'active'; // تحديث الحالة في قاعدة البيانات
     await order.save();
 
-    res.json({ msg: "تم تفعيل الاشتراك بنجاح!" });
+    res.json({ msg: "تم قبول الطلب بنجاح", order });
   } catch (err) {
-    res.status(500).json({ msg: "فشل في تفعيل الاشتراك" });
+    res.status(500).json({ msg: "خطأ في تحديث البيانات" });
   }
 });
-
 module.exports = router;

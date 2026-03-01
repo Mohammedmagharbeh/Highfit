@@ -102,6 +102,7 @@
   "menu_mgmt": "MENU MANAGEMENT",
   "order_no": "Order #",
   "accept_btn": "ACCEPT & PREPARE",
+  "accept": "Accept",
   "new_order_alert": "NEW ORDER! 🔔",
   "activate_btn": "ACTIVATE KITCHEN 🔔",
   "add_meal": "Add New Meal",
@@ -128,7 +129,7 @@
   "october": "October",
   "november": "November",
   "december": "December",
-
+"reviewed":"reviewed",
   "confirm_delete": "Are you sure you want to delete?",
   "delete_success": "Deleted successfully",
   "delete_error": "Error while deleting",

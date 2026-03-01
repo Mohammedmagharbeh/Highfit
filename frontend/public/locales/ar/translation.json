@@ -20,7 +20,8 @@
   "november": "نوفمبر",
   "december": "ديسمبر",
   "activate_alerts": "تفعيل التنبيهات",
-
+"reviewed":"تمت المراجعة",
+"accept": "قبول",
   "confirm_delete": "هل أنت متأكد من الحذف؟",
   "delete_success": "تم الحذف بنجاح",
   "delete_error": "حدث خطأ أثناء الحذف",
