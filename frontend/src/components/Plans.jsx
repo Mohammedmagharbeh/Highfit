@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -17,7 +18,8 @@ const Plans = () => {
         const res = await axios.get(`${BASE_URL}/subscriptions`);
         setSubscriptions(res.data);
       } catch (err) {
-        console.error("Error fetching subscriptions:", err);
+        toast.error(t("plans.fetchError") || "Failed to load subscriptions");
+        console.error("Fetch Subscriptions Error:", err.response?.data || err.message);
       } finally {
         setLoading(false);
       }
@@ -28,7 +30,7 @@ const Plans = () => {
   if (loading)
     return (
       <div className="min-h-screen bg-black flex items-center justify-center text-orange-500 font-bold animate-pulse italic text-2xl tracking-tighter">
-        {t("plans.loading")}
+        {t("plans.loading") || "LOADING..."}
       </div>
     );
 
@@ -49,10 +51,7 @@ const Plans = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {subscriptions.map((sub) => {
           const title = i18n.language === "ar" ? sub.title.ar : sub.title.en;
-          const description =
-            i18n.language === "ar"
-              ? sub.description?.ar
-              : sub.description?.en;
+          const description = i18n.language === "ar" ? sub.description?.ar : sub.description?.en;
 
           return (
             <div
@@ -98,15 +97,16 @@ const SubscriptionModal = ({ sub, onClose, i18n }) => {
   const { t } = useTranslation();
   const [fullName, setFullName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [nationalId, setNationalId] = useState('');
+  const [birthDate, setBirthDate] = useState('');
   const [selectedPlan, setSelectedPlan] = useState(sub.plans[0]);
   const [fetchingUser, setFetchingUser] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const getUserData = async () => {
       const token = sessionStorage.getItem('token');
       if (!token) {
-        alert(t("modal.loginRequired"));
+        alert(t("modal.loginRequired") || "يرجى تسجيل الدخول أولاً");
         onClose();
         return;
       }
@@ -116,7 +116,7 @@ const SubscriptionModal = ({ sub, onClose, i18n }) => {
         });
         setPhoneNumber(res.data.phone);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching user data:", err);
       } finally {
         setFetchingUser(false);
       }
@@ -126,50 +126,63 @@ const SubscriptionModal = ({ sub, onClose, i18n }) => {
 
   const handleConfirm = async (e) => {
     e.preventDefault();
-    const idStr = String(nationalId).trim();
+    if (isSubmitting) return;
 
-    if (idStr.length !== 10) {
-      alert(t("validation.nationalIdLength"));
+    if (!birthDate) {
+      alert("يرجى إدخال تاريخ الميلاد");
       return;
     }
 
-    // حساب العمر بناءً على الرقم الوطني
-    let birthYear = idStr.startsWith('2')
-      ? parseInt(idStr.substring(0, 4))
-      : 1900 + parseInt(idStr.substring(0, 2));
-
-    const age = new Date().getFullYear() - birthYear;
+    // حساب العمر
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
 
     if (age < 18) {
-      alert(t("validation.ageRestriction", { age }));
+      alert(t("validation.ageRestriction", { age }) || `يجب أن يكون العمر 18 عاماً على الأقل. عمرك الحالي: ${age}`);
       return;
     }
 
+    setIsSubmitting(true);
     try {
       const token = sessionStorage.getItem('token');
       
-      // التعديل هنا: نرسل الكائنات كاملة ar و en لتتوافق مع الموديل الجديد
-      await axios.post(`${BASE_URL}/sub-orders/subscribe`, {
+      const payload = {
         subscriptionId: sub._id,
         customerDetails: { 
           fullName, 
           phone: phoneNumber, 
-          nationalId: idStr, 
-          age 
+          nationalId: birthDate, 
+          age: Number(age) 
         },
         planDetails: {
-          title: sub.title,        // نرسل كائن اللغات كاملاً {ar: "...", en: "..."}
-          duration: selectedPlan.duration, // نرسل كائن اللغات كاملاً {ar: "...", en: "..."}
-          price: selectedPlan.price
+          title: {
+            ar: sub.title.ar,
+            en: sub.title.en
+          },
+          duration: {
+            ar: selectedPlan.duration.ar,
+            en: selectedPlan.duration.en
+          },
+          price: Number(selectedPlan.price)
         }
-      }, { headers: { Authorization: `Bearer ${token}` } });
+      };
 
-      alert(t("validation.success"));
+      await axios.post(`${BASE_URL}/sub-orders/subscribe`, payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      alert(t("validation.success") || "تم الاشتراك بنجاح");
       onClose();
     } catch (err) {
-      // طباعة الخطأ في الكونسول لمعرفة السبب الحقيقي لو استمرت المشكلة
-      console.error("Subscription Error:", err.response?.data || err.message);
-      alert(t("validation.networkError"));
+      console.error("Subscription Error Details:", err.response?.data || err.message);
+      alert(err.response?.data?.msg || t("validation.networkError") || "حدث خطأ أثناء الاشتراك");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -185,12 +198,12 @@ const SubscriptionModal = ({ sub, onClose, i18n }) => {
         </button>
         
         <h2 className="text-xl font-black italic text-orange-500 mb-4 uppercase tracking-tight text-right">
-          {t("modal.title")}
+          {t("modal.title") || "إتمام الاشتراك"}
         </h2>
 
         {fetchingUser ? (
           <div className="py-10 text-center text-white/20 italic animate-pulse">
-            {t("modal.loading")}
+            {t("modal.loading") || "جاري التحميل..."}
           </div>
         ) : (
           <form onSubmit={handleConfirm} className="space-y-4" dir="rtl">
@@ -213,7 +226,7 @@ const SubscriptionModal = ({ sub, onClose, i18n }) => {
               <input
                 required
                 type="text"
-                placeholder={t("modal.fullNamePlaceholder")}
+                placeholder={t("modal.fullNamePlaceholder") || "الاسم الكامل"}
                 className="w-full bg-white/10 border border-white/10 p-3 rounded-xl text-white outline-none focus:border-orange-500 font-bold text-right text-sm"
                 onChange={(e) => setFullName(e.target.value)}
               />
@@ -221,15 +234,13 @@ const SubscriptionModal = ({ sub, onClose, i18n }) => {
 
             <div>
               <label className="text-[9px] font-black text-white/30 uppercase mb-1 block tracking-widest text-right">
-                {t("modal.nationalId")}
+                {t("modal.birthDate") || "تاريخ الميلاد"}
               </label>
               <input
                 required
-                type="text"
-                maxLength="10"
-                placeholder={t("modal.nationalIdPlaceholder")}
-                className="w-full bg-white/10 border border-white/10 p-3 rounded-xl text-white outline-none focus:border-orange-500 font-mono tracking-widest text-center text-sm"
-                onChange={(e) => setNationalId(e.target.value)}
+                type="date"
+                className="w-full bg-white/10 border border-white/10 p-3 rounded-xl text-white outline-none focus:border-orange-500 font-mono text-center text-sm"
+                onChange={(e) => setBirthDate(e.target.value)}
               />
             </div>
 
@@ -260,9 +271,10 @@ const SubscriptionModal = ({ sub, onClose, i18n }) => {
               </div>
               <button
                 type="submit"
-                className="w-full bg-orange-500 py-4 rounded-xl text-white font-black uppercase italic hover:bg-white hover:text-black transition-all shadow-lg active:scale-95 text-sm tracking-tighter"
+                disabled={isSubmitting}
+                className={`w-full ${isSubmitting ? 'bg-gray-600' : 'bg-orange-500 hover:bg-white hover:text-black'} py-4 rounded-xl text-white font-black uppercase italic transition-all shadow-lg active:scale-95 text-sm tracking-tighter`}
               >
-                {t("modal.submit")}
+                {isSubmitting ? "جاري الإرسال..." : (t("modal.submit") || "تأكيد الاشتراك")}
               </button>
             </div>
           </form>
