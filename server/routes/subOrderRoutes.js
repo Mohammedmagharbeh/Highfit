@@ -40,18 +40,19 @@ router.get('/admin/all', async (req, res) => {
 
 // 3. قبول الطلب وتغيير حالته (المزامنة)
 // استخدمنا PATCH هنا لتحديث جزئي وهو الأفضل برمجياً
-// تحديث حالة الطلب إلى active (قبول)
 router.patch('/:id/accept', auth, async (req, res) => {
   try {
     const order = await SubOrder.findById(req.params.id);
     if (!order) return res.status(404).json({ msg: "الطلب غير موجود" });
 
-    order.status = 'active'; // تحديث الحالة في قاعدة البيانات
+    // تحويل الحالة من pending إلى active
+    order.status = 'active'; 
     await order.save();
 
-    res.json({ msg: "تم قبول الطلب بنجاح", order });
+    res.json({ msg: "تم قبول اللاعب وتحديث الحالة على جميع الأجهزة", order });
   } catch (err) {
-    res.status(500).json({ msg: "خطأ في تحديث البيانات" });
+    res.status(500).json({ msg: "فشل في تحديث حالة الطلب" });
   }
 });
+
 module.exports = router;
