@@ -63,7 +63,7 @@
   "days_left": "الأيام المتبقية",
   "days_unit": "يوم",
   "expired": "منتهي",
-
+"days": "أيام",
   "home": "الرئيسية",
   "about": "من نحن",
   "back_to_arena": "الصفحة الرئيسية",
@@ -158,7 +158,7 @@
   "invalid_phone_10_digits": "رقم الهاتف يجب أن يتكون من 10 أرقام",
   "application_success": "تم إرسال طلبك بنجاح!",
   "application_error": "حدث خطأ أثناء إرسال الطلب",
-
+  "Done":"تم النفعيل",
   "chef_dashboard_title": "محطة المطبخ",
   "active_orders": "الطلبات النشطة",
   "no_orders": "لا توجد طلبات لهذا التاريخ",

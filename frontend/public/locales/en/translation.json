@@ -95,7 +95,8 @@
   "invalid_phone_10_digits": "Phone number must be 10 digits",
   "application_success": "Application sent successfully!",
   "application_error": "Error sending application",
-
+"Done":"Done",
+"days": "Days",
   "chef_dashboard_title": "KITCHEN STATION",
   "active_orders": "ACTIVE ORDERS",
   "no_orders": "No orders found for this date",
