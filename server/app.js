@@ -1,40 +1,3 @@
-// const express = require("express");
-// const cors = require("cors");
-// const bodyParser = require("body-parser"); // استخدمنا واحد فقط للوضوح
-// const dotenv = require("dotenv");
-// const connectDB = require("./config/db");
-
-// // تحميل الإعدادات
-// dotenv.config();
-// const app = express();
-
-// // الاتصال بقاعدة البيانات
-// connectDB();
-
-// // 1. إعدادات الـ CORS (يجب أن تكون في البداية)
-// app.use(cors());
-
-// app.use(bodyParser.json({ limit: "50mb" }));
-// app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
-
-// const jobRoutes = require("../server/routes/jobRoutes");
-// const applicationRoutes = require("../server/routes/applicationRoutes");
-// const userRoutes = require("../server/routes/userRoutes");
-// const fitnessPlanRoutes = require("./routes/fitnessPlanRoutes");
-// const nutritionRoutes = require("./routes/nutritionRoutes");
-
-// app.use("/api/jobs", jobRoutes);
-// app.use("/api/apply", applicationRoutes);
-// app.use("/api", userRoutes);
-// app.use("/api/plans", fitnessPlanRoutes);
-// app.use("/api/nutrition", nutritionRoutes);
-
-// app.use('/api/chef', require('./routes/chefRoutes'));
-// app.use('/api/meals', require('./routes/mealRoutes'));
-// app.use('/api/orders', require('./routes/orderRoutes'));
-
-// module.exports = app;
-
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -81,8 +44,7 @@ const cartRoutes = require("./routes/cartRoutes");
 const locationRoutes = require("./routes/locationsRoutes");
 const subRoutes = require("./routes/subRoutes");
 const SubOrderRoutes = require("./routes/subOrderRoutes");
-
-
+const adminRoutes = require("./routes/adminRoutes");
 
 // تسجيل الروابط
 app.use("/api/jobs", jobRoutes);
@@ -98,7 +60,7 @@ app.use("/api/locations", locationRoutes);
 app.use("/api/subscriptions", subRoutes);
 app.use("/api/sub-orders", SubOrderRoutes);
 app.use("/api/users", userRoutes);
-
+app.use("/api/admin", adminRoutes);
 
 // مراقبة اتصال الشيف
 io.on("connection", (socket) => {});

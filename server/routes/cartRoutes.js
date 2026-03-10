@@ -13,6 +13,7 @@ router.get('/', validateJWT, async (req, res) => {
   if (!cart) return res.status(404).json({ message: "Cart not found" });
   res.status(200).json(cart);
 });
+
 // إضافة وجبة للسلة (POST /api/cart/add)
 // تستخدم عند الضغط على "إضافة للسلة" من صفحة المنيو
 router.post("/add", cartController.addToCart);
