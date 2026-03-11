@@ -59,7 +59,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/locations", locationRoutes);
 app.use("/api/subscriptions", subRoutes);
 app.use("/api/sub-orders", SubOrderRoutes);
-app.use("/api/users", userRoutes);
+// app.use("/api/users", userRoutes);
 app.use("/api/admin", adminRoutes);
 
 // مراقبة اتصال الشيف

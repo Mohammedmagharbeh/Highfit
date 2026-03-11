@@ -35,30 +35,67 @@
 
 // module.exports = validateJWT;
 
+// const jwt = require("jsonwebtoken");
+// const userModel = require("../models/user");
+
+// const validateJWT = async (req, res, next) => {
+//   try {
+//     const authorizationHeader = req.get("authorization");
+
+//     if (!authorizationHeader || !authorizationHeader.startsWith("Bearer ")) {
+//       return res.status(403).json({ message: "Authorization header missing" });
+//     }
+
+//     const token = authorizationHeader.split(" ")[1];
+
+//     // فك التشفير ومزامنة البيانات
+//     const payload = jwt.verify(token, process.env.JWT_SECRET);
+    
+//     // البحث عن اليوزر لجلب الـ Role الجديد "admin"
+//     const user = await userModel.findOne({ phone: payload.phone });
+
+//     if (!user) {
+//       return res.status(403).json({ message: "User not found" });
+//     }
+
+//     req.user = user; // هيك req.user.role صار admin مؤكد
+//     next();
+//   } catch (err) {
+//     console.error("JWT Auth Error:", err.message);
+//     return res.status(403).json({ message: "Invalid or expired token" });
+//   }
+// };
+
+// module.exports = validateJWT;
+
+
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/user");
 
 const validateJWT = async (req, res, next) => {
   try {
     const authorizationHeader = req.get("authorization");
-
     if (!authorizationHeader || !authorizationHeader.startsWith("Bearer ")) {
       return res.status(403).json({ message: "Authorization header missing" });
     }
 
     const token = authorizationHeader.split(" ")[1];
-
-    // فك التشفير ومزامنة البيانات
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     
-    // البحث عن اليوزر لجلب الـ Role الجديد "admin"
-    const user = await userModel.findOne({ phone: payload.phone });
+    // --- تعديل ذكي هنا ---
+    // إذا كان الـ id هو 123 (الآدمن المؤقت)، نتخطى البحث في القاعدة
+    if (payload.id === "123") {
+      req.user = { _id: "123", role: "admin", username: "mohammad_admin" };
+      return next();
+    }
 
+    // للمستخدمين الحقيقيين، نبحث بالـ ID
+    const user = await userModel.findById(payload.id);
     if (!user) {
       return res.status(403).json({ message: "User not found" });
     }
 
-    req.user = user; // هيك req.user.role صار admin مؤكد
+    req.user = user;
     next();
   } catch (err) {
     console.error("JWT Auth Error:", err.message);

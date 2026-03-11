@@ -2,13 +2,18 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
-    phone: { type: String, sparse: true, unique: true },
     username: { type: String, sparse: true, unique: true },
-    role: { type: String, enum: ["user", "employee", "admin"], default: "user" },
+    phone: { type: String, sparse: true, unique: true }, // للمشتركين
+    email: { type: String, sparse: true, unique: true }, // للموظفين
+    password: { type: String }, // للموظفين والآدمن
+    role: {
+      type: String,
+      enum: ["admin", "chef", "trainer_lead", "coach", "user"], // ضيف trainer_lead هون      default: "user"
+    },
     otp: String,
     otpExpires: Date,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("users", userSchema);

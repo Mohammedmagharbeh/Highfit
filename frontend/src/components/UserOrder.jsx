@@ -31,9 +31,13 @@ const UserOrder = () => {
     }
   };
 
-  const handleAddToCartClick = async () => {
+const handleAddToCartClick = async () => {
+    // التعديل هنا: نفحص اليوزر العادي أو الموظف
     const sessionUser = sessionStorage.getItem("user");
-    if (!sessionUser) {
+    const staffUser = sessionStorage.getItem("staffUser");
+
+    // إذا لم يجد لا هذا ولا ذاك، اطلب تسجيل الدخول
+    if (!sessionUser && !staffUser) {
       toast.error(t("login_required"));
       return;
     }
@@ -49,9 +53,36 @@ const UserOrder = () => {
       setSelectedMeal(null); 
       setOrderData({ quantity: 1, notes: '' }); 
     } catch (err) {
-      toast.error(t("error_adding"), { id: loadingToast });
+      // إذا كان الخطأ 401، يعني التوكن انتهى أو غير موجود
+      if (err.response?.status === 401) {
+        toast.error("انتهت الجلسة، سجل دخولك مرة أخرى", { id: loadingToast });
+      } else {
+        toast.error(t("error_adding"), { id: loadingToast });
+      }
     }
   };
+
+  // const handleAddToCartClick = async () => {
+  //   const sessionUser = sessionStorage.getItem("user");
+  //   if (!sessionUser) {
+  //     toast.error(t("login_required"));
+  //     return;
+  //   }
+
+  //   if (!selectedMeal) return;
+
+  //   const loadingToast = toast.loading(t("adding_to_cart"));
+  //   try {
+  //     await addToCart(selectedMeal._id, orderData.quantity, orderData.notes);
+      
+  //     const mealName = selectedMeal.name[i18n.language] || selectedMeal.name.en;
+  //     toast.success(`${t("added")} ${mealName} ${t("to_cart_success")} 🛒`, { id: loadingToast });
+  //     setSelectedMeal(null); 
+  //     setOrderData({ quantity: 1, notes: '' }); 
+  //   } catch (err) {
+  //     toast.error(t("error_adding"), { id: loadingToast });
+  //   }
+  // };
 
   const incrementQty = () => setOrderData(prev => ({ ...prev, quantity: prev.quantity + 1 }));
   const decrementQty = () => {
