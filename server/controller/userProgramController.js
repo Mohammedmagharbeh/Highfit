@@ -39,11 +39,28 @@ exports.updateProgram = async (req, res) => {
 exports.submitProgram = async (req, res) => {
   try {
     const { id } = req.params;
+    const { coachId } = req.body;
+
+    let updateFields = { status: 'submitted' };
+    if (coachId) updateFields.coachId = coachId;
+
     const program = await UserProgram.findByIdAndUpdate(
       id,
-      { status: 'submitted' },
+      updateFields,
       { new: true }
-    );
+    ).populate('userId', 'username email');
+    
+    const Notification = require("../models/Notification");
+    const notification = new Notification({
+      targetRole: 'trainer_lead',
+      title: "برنامج جديد قيد المراجعة",
+      content: `تم تقديم برنامج جديد للمتدرب ${program.userId?.username || 'بدون اسم'}`
+    });
+    await notification.save();
+
+    const io = req.app.get("io");
+    if (io) io.emit("newNotification", notification);
+
     res.status(200).json({ message: "Program submitted successfully", program });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -95,7 +112,33 @@ exports.approveProgram = async (req, res) => {
       id,
       { status: 'approved', rejectionReason: '' },
       { new: true }
-    );
+    ).populate('userId', 'username email');
+
+    const Notification = require("../models/Notification");
+    const io = req.app.get("io");
+
+    // Notification to related user
+    if (program.userId) {
+      const notifUser = new Notification({
+        targetUserId: program.userId._id,
+        title: "تمت الموافقة على برنامجك",
+        content: "لقد تم اعتماد برنامجك التدريبي والغذائي."
+      });
+      await notifUser.save();
+      if (io) io.emit("newNotification", notifUser);
+    }
+    
+    // Notification to submitting coach
+    if (program.coachId) {
+      const notifCoach = new Notification({
+        targetUserId: program.coachId,
+        title: "تمت الموافقة على البرنامج",
+        content: `تمت الموافقة على البرنامج الذي قدمته للمتدرب ${program.userId?.username || 'بدون اسم'}`
+      });
+      await notifCoach.save();
+      if (io) io.emit("newNotification", notifCoach);
+    }
+
     res.status(200).json({ message: "Program approved successfully", program });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -111,7 +154,21 @@ exports.rejectProgram = async (req, res) => {
       id,
       { status: 'rejected', rejectionReason },
       { new: true }
-    );
+    ).populate('userId', 'username email');
+
+    if (program.coachId) {
+      const Notification = require("../models/Notification");
+      const notifCoach = new Notification({
+        targetUserId: program.coachId,
+        title: "تم رفض البرنامج",
+        content: `تم رفض البرنامج المقدم للمتدرب ${program.userId?.username || 'بدون اسم'} بسبب: ${rejectionReason}`
+      });
+      await notifCoach.save();
+      
+      const io = req.app.get("io");
+      if (io) io.emit("newNotification", notifCoach);
+    }
+
     res.status(200).json({ message: "Program rejected successfully", program });
   } catch (error) {
     res.status(500).json({ error: error.message });

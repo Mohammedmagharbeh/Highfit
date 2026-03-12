@@ -86,7 +86,7 @@ export const useUserPrograms = () => {
 
   const submitProgram = async (programId) => {
     try {
-      await axios.post(`${API_URL}/${programId}/submit`);
+      await axios.post(`${API_URL}/${programId}/submit`, { coachId: currentUserId });
       toast.success("تم التقديم بنجاح");
       fetchData();
     } catch (error) {

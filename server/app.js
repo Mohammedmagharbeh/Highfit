@@ -40,6 +40,7 @@ const subRoutes = require("./routes/subRoutes");
 const SubOrderRoutes = require("./routes/subOrderRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const userProgramRoutes = require("./routes/userProgramRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 
 app.use("/api/jobs", jobRoutes);
 app.use("/api/apply", applicationRoutes);
@@ -55,6 +56,7 @@ app.use("/api/subscriptions", subRoutes);
 app.use("/api/sub-orders", SubOrderRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/user-programs", userProgramRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 io.on("connection", (socket) => {});
 
