@@ -89,7 +89,7 @@ export default function JobsPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans pb-20 pt-28" dir={isAr ? "rtl" : "ltr"}>
-      <Toaster position="top-center" />
+      
 
       {/* Hero Header */}
       <div className="relative py-16 sm:py-24 overflow-hidden">

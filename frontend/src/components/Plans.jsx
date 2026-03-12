@@ -36,20 +36,7 @@ const Plans = () => {
 
   return (
     <div className="bg-black min-h-screen py-20 px-6 font-sans">
-      <Toaster 
-        position="top-center" 
-        containerStyle={{ top: 120, zIndex: 100000 }} 
-        toastOptions={{
-          style: {
-            background: '#111',
-            color: '#fff',
-            border: '1px solid #f97316',
-            borderRadius: '16px',
-            fontSize: '14px',
-            fontWeight: 'bold',
-          },
-        }}
-      />
+
 
       {/* Header */}
       <div className="max-w-7xl mx-auto text-center mb-16">

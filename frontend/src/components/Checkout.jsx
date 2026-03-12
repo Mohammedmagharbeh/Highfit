@@ -131,7 +131,7 @@
 
 //   return (
 //     <div className="min-h-screen bg-[#050505] text-white p-6 pb-32 pt-36" dir={isAr ? "rtl" : "ltr"}>
-//       <Toaster position="top-center" />
+//       
 //       <div className="max-w-2xl mx-auto space-y-8">
         
 //         {/* Header */}
@@ -370,7 +370,7 @@ const Checkout = () => {
 
   return (
     <div className="min-h-screen bg-[#050505] text-white p-6 pb-32 pt-36" dir={isAr ? "rtl" : "ltr"}>
-      <Toaster position="top-center" />
+      
       <div className="max-w-2xl mx-auto space-y-8">
         
         {/* Header */}

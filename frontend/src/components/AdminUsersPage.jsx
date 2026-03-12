@@ -137,19 +137,7 @@ const AdminUsersPage = () => {
       dir={isAr ? "rtl" : "ltr"}
     >
       {/* التوست يظهر تحت الهيدر مباشرة بمسافة أمان */}
-      <Toaster
-        position="top-center"
-        containerStyle={{ zIndex: 999999, top: "90px" }}
-        toastOptions={{
-          style: {
-            background: "#0a0a0a",
-            color: "#fff",
-            border: "2px solid #ef4444",
-            borderRadius: "12px",
-            fontWeight: "bold",
-          },
-        }}
-      />
+
 
       <div className="max-w-6xl mx-auto space-y-6 pt-16">
         {/* Header */}

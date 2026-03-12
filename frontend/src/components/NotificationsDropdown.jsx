@@ -3,6 +3,7 @@ import { Bell } from 'lucide-react';
 import axios from 'axios';
 import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const socket = io(import.meta.env.VITE_SOCKET_URL);
 
@@ -10,6 +11,7 @@ const NotificationsDropdown = () => {
   const [notifications, setNotifications] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const navigate = useNavigate();
 
   const staffUserStr = sessionStorage.getItem("staffUser");
   const regularUserStr = sessionStorage.getItem("user");
@@ -18,6 +20,9 @@ const NotificationsDropdown = () => {
   let currentUser = null;
   if (staffUserStr) currentUser = JSON.parse(staffUserStr);
   else if (regularUserStr) currentUser = JSON.parse(regularUserStr);
+
+  const userId = currentUser?._id || currentUser?.id;
+  const userRole = currentUser?.role;
 
   const fetchNotifications = async () => {
     if (!token || !currentUser) return;
@@ -39,8 +44,8 @@ const NotificationsDropdown = () => {
       if (!currentUser) return;
       
       const isForMe = 
-        (notification.targetUserId && notification.targetUserId === (currentUser._id || currentUser.id)) ||
-        (notification.targetRole && notification.targetRole === currentUser.role);
+        (notification.targetUserId && notification.targetUserId === userId) ||
+        (notification.targetRole && notification.targetRole === userRole);
 
       if (isForMe) {
         setNotifications(prev => [notification, ...prev]);
@@ -68,7 +73,7 @@ const NotificationsDropdown = () => {
     return () => {
       socket.off("newNotification", handleNewNotification);
     };
-  }, [currentUser, token]);
+  }, [userId, userRole, token]);
 
   const markAsRead = async (id) => {
     try {
@@ -93,6 +98,14 @@ const NotificationsDropdown = () => {
       setUnreadCount(0);
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleNotificationClick = (notif) => {
+    if (!notif.isRead) markAsRead(notif._id);
+    if (notif.link) {
+      navigate(notif.link);
+      setIsOpen(false);
     }
   };
 
@@ -140,8 +153,8 @@ const NotificationsDropdown = () => {
               notifications.map((notif) => (
                 <div 
                   key={notif._id} 
-                  className={`p-4 border-b border-white/5 last:border-b-0 hover:bg-white/[0.02] transition cursor-pointer flex gap-3 ${!notif.isRead ? 'bg-orange-500/5' : ''}`}
-                  onClick={() => !notif.isRead && markAsRead(notif._id)}
+                  className={`p-4 border-b border-white/5 last:border-b-0 transition cursor-pointer flex gap-3 ${!notif.isRead ? 'bg-orange-500/5 hover:bg-orange-500/10' : 'hover:bg-white/[0.02]'}`}
+                  onClick={() => handleNotificationClick(notif)}
                   dir="rtl"
                 >
                   <div className={`mt-1 flex-shrink-0 ${!notif.isRead ? 'text-orange-500' : 'text-gray-500'}`}>

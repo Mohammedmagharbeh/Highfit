@@ -8,7 +8,10 @@ import {
   Info,
   Trash2,
   Plus,
+  Upload,
 } from "lucide-react";
+import axios from "axios";
+import { toast } from "react-hot-toast";
 
 const ExerciseItem = ({
   ex,
@@ -19,6 +22,8 @@ const ExerciseItem = ({
   plansHook,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
 
   const handleUpdate = (key, value) => {
     plansHook.updateExercise(planId, dayIndex, index, key, value);
@@ -27,6 +32,37 @@ const ExerciseItem = ({
   const handleDelete = (e) => {
     e.stopPropagation();
     plansHook.deleteExercise(planId, dayIndex, index);
+  };
+
+  const uploadFile = async (e, type) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (type === "image") setIsUploadingImage(true);
+    if (type === "video") setIsUploadingVideo(true);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:5000";
+      const { data } = await axios.post(`${BASE_URL}/upload`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (type === "image") {
+        handleUpdate("images", [data.url]);
+      } else {
+        handleUpdate("video", data.url);
+      }
+      toast.success("تم رفع الملف بنجاح!");
+    } catch (error) {
+      console.error("Upload Error:", error);
+      toast.error("فشل في رفع الملف، يرجى المحاولة مرة أخرى.");
+    } finally {
+      if (type === "image") setIsUploadingImage(false);
+      if (type === "video") setIsUploadingVideo(false);
+    }
   };
 
   return (
@@ -132,9 +168,26 @@ const ExerciseItem = ({
             {isEditMode && (
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-neutral-300">
-                    <ImageIcon className="w-4 h-4 text-emerald-400" /> رابط
-                    الصورة
+                  <div className="flex items-center justify-between gap-2 text-sm font-semibold text-neutral-300">
+                    <div className="flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4 text-emerald-400" /> رابط
+                      الصورة أو الرفع
+                    </div>
+                    <label className="cursor-pointer bg-neutral-800 hover:bg-neutral-700 text-xs px-2 py-1 rounded text-white transition flex items-center gap-1">
+                      {isUploadingImage ? (
+                        <span className="animate-spin text-emerald-400">↻</span>
+                      ) : (
+                        <Upload className="w-3 h-3 text-emerald-400" />
+                      )}
+                      {isUploadingImage ? "جاري الرفع..." : "رفع صورة"}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => uploadFile(e, "image")}
+                        disabled={isUploadingImage}
+                      />
+                    </label>
                   </div>
                   <input
                     value={ex.images?.[0] || ""}
@@ -144,16 +197,34 @@ const ExerciseItem = ({
                     dir="ltr"
                   />
                 </div>
+
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-neutral-300">
-                    <Play className="w-4 h-4 text-red-500" /> رابط الفيديو
-                    (YouTube)
+                  <div className="flex items-center justify-between gap-2 text-sm font-semibold text-neutral-300">
+                    <div className="flex items-center gap-2">
+                      <Play className="w-4 h-4 text-red-500" /> رابط أو ملف
+                      فيديو
+                    </div>
+                    <label className="cursor-pointer bg-neutral-800 hover:bg-neutral-700 text-xs px-2 py-1 rounded text-white transition flex items-center gap-1">
+                      {isUploadingVideo ? (
+                        <span className="animate-spin text-red-500">↻</span>
+                      ) : (
+                        <Upload className="w-3 h-3 text-red-500" />
+                      )}
+                      {isUploadingVideo ? "جاري الرفع..." : "رفع فيديو"}
+                      <input
+                        type="file"
+                        accept="video/*"
+                        className="hidden"
+                        onChange={(e) => uploadFile(e, "video")}
+                        disabled={isUploadingVideo}
+                      />
+                    </label>
                   </div>
                   <input
                     value={ex.video || ""}
                     onChange={(e) => handleUpdate("video", e.target.value)}
                     className="w-full bg-neutral-950 border border-neutral-700 rounded px-3 py-2 text-sm text-white focus:border-emerald-500 outline-none text-left"
-                    placeholder="https://youtube.com/embed/..."
+                    placeholder="https://youtube.com/embed/... أو فيديو"
                     dir="ltr"
                   />
                 </div>
@@ -191,13 +262,24 @@ const ExerciseItem = ({
                       فيديو الشرح
                     </div>
                     <div className="relative aspect-video rounded-lg overflow-hidden border border-neutral-800 bg-neutral-950 shadow-inner">
-                      <iframe
-                        src={ex.video}
-                        title={`شرح تمرين ${ex.name}`}
-                        className="w-full h-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      ></iframe>
+                      {ex.video.includes("cloudinary.com") ||
+                      ex.video.match(/\.(mp4|webm|ogg)$/i) ? (
+                        <video
+                          src={ex.video}
+                          controls
+                          className="w-full h-full object-cover"
+                        >
+                          متصفحك لا يدعم تشغيل الفيديو.
+                        </video>
+                      ) : (
+                        <iframe
+                          src={ex.video}
+                          title={`شرح تمرين ${ex.name}`}
+                          className="w-full h-full"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        ></iframe>
+                      )}
                     </div>
                   </div>
                 )}

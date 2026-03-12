@@ -113,7 +113,7 @@ const ChefDashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#050505] text-white p-4 lg:p-8 font-sans flex flex-col lg:flex-row gap-6" dir={isAr ? "rtl" : "ltr"}>
-      <Toaster position="top-center" />
+      
 
       {/* Side Nav */}
       <aside className={`lg:w-20 w-full bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] flex lg:flex-col items-center py-8 gap-8 self-start shadow-2xl`}>

@@ -54,7 +54,8 @@ exports.submitProgram = async (req, res) => {
     const notification = new Notification({
       targetRole: 'trainer_lead',
       title: "برنامج جديد قيد المراجعة",
-      content: `تم تقديم برنامج جديد للمتدرب ${program.userId?.username || 'بدون اسم'}`
+      content: `تم تقديم برنامج جديد للمتدرب ${program.userId?.username || 'بدون اسم'}`,
+      link: "/plans",
     });
     await notification.save();
 
@@ -122,7 +123,8 @@ exports.approveProgram = async (req, res) => {
       const notifUser = new Notification({
         targetUserId: program.userId._id,
         title: "تمت الموافقة على برنامجك",
-        content: "لقد تم اعتماد برنامجك التدريبي والغذائي."
+        content: "لقد تم اعتماد برنامجك التدريبي والغذائي.",
+        link: "/plans",
       });
       await notifUser.save();
       if (io) io.emit("newNotification", notifUser);
@@ -133,7 +135,8 @@ exports.approveProgram = async (req, res) => {
       const notifCoach = new Notification({
         targetUserId: program.coachId,
         title: "تمت الموافقة على البرنامج",
-        content: `تمت الموافقة على البرنامج الذي قدمته للمتدرب ${program.userId?.username || 'بدون اسم'}`
+        content: `تمت الموافقة على البرنامج الذي قدمته للمتدرب ${program.userId?.username || 'بدون اسم'}`,
+        link: "/plans",
       });
       await notifCoach.save();
       if (io) io.emit("newNotification", notifCoach);
@@ -161,7 +164,8 @@ exports.rejectProgram = async (req, res) => {
       const notifCoach = new Notification({
         targetUserId: program.coachId,
         title: "تم رفض البرنامج",
-        content: `تم رفض البرنامج المقدم للمتدرب ${program.userId?.username || 'بدون اسم'} بسبب: ${rejectionReason}`
+        content: `تم رفض البرنامج المقدم للمتدرب ${program.userId?.username || 'بدون اسم'} بسبب: ${rejectionReason}`,
+        link: "/plans",
       });
       await notifCoach.save();
       

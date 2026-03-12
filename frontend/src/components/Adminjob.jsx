@@ -121,18 +121,7 @@ export default function AdminJobs() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans pb-20 pt-10" dir={isAr ? "rtl" : "ltr"}>
       
-      <Toaster 
-        position="top-center" 
-        containerStyle={{ zIndex: 100000 }} 
-        toastOptions={{
-          style: {
-            background: '#18181b',
-            color: '#fff',
-            border: '1px solid rgba(249,115,22,0.3)',
-            minWidth: '320px'
-          },
-        }}
-      />
+
 
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 px-6 py-8">

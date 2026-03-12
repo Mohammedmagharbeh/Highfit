@@ -14,7 +14,7 @@ const TrainingNutrition = () => {
 
   return (
     <div className="relative">
-      <Toaster position="top-center" reverseOrder={false} />
+      
       <div className="absolute top-4 right-4 md:right-8 z-50 flex gap-3">
         {isEditMode ? (
           <>

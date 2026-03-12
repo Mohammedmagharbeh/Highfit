@@ -92,7 +92,7 @@ export default function StaffLoginPage() {
 
   return (
     <div className="relative flex flex-col lg:flex-row min-h-screen bg-[#0a0a0a] text-white overflow-hidden">
-      <Toaster position="top-center" />
+      
 
       {/* القسم الجمالي */}
       <div className="relative w-full lg:w-1/2 h-[30vh] lg:h-screen p-8 lg:p-16 flex flex-col justify-between border-r border-white/5">

@@ -160,16 +160,7 @@ export default function AdminSubscriptions() {
 
   return (
     <div className="p-4 md:p-10 bg-black min-h-screen text-white font-sans" dir={i18n.dir()}>
-      <Toaster 
-        position="top-center" 
-        containerStyle={{ top: 120, zIndex: 999999 }} 
-        toastOptions={{
-          style: {
-            background: '#1a1a1a', color: '#fff', border: '2px solid #f97316', 
-            padding: '20px', borderRadius: '15px',
-          },
-        }}
-      />
+
       
       {hasNew && (
         <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[999] bg-orange-600 px-6 py-3 rounded-full font-black shadow-2xl animate-bounce border border-white/20">

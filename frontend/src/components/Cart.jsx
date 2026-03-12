@@ -44,7 +44,7 @@ const Cart = () => {
 
   return (
     <div className="min-h-screen bg-[#050505] text-white font-sans pb-32" dir={isAr ? "rtl" : "ltr"}>
-      <Toaster position="top-center" />
+      
       
       {/* Header */}
       <header className="p-6 border-b border-white/5 flex items-center justify-between sticky top-0 bg-[#050505]/80 backdrop-blur-md z-10">

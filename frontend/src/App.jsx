@@ -85,6 +85,7 @@ import { UserProvider } from "./context/userContext";
 import { useTranslation } from "react-i18next";
 import AdminUsersPage from "./components/AdminUsersPage";
 import StaffLoginPage from "./components/staffLoginPage";
+import { Toaster } from "react-hot-toast";
 import "./index.css";
 import "./i18n";
 
@@ -105,7 +106,8 @@ function AppContent() {
           - md:pt-40: تعطي مسافة أكبر للشاشات الكبيرة.
           - w-full: يضمن استهلاك العرض الكامل المتاح.
       */}
-      <main className="pt-24 md:pt-28 pb-10 w-full relative z-10">
+      <Toaster position="top-center" containerStyle={{ zIndex: 9999999 }} />
+      <main className="pt-24 md:pt-28 pb-10 w-full">
         <Routes>
           <Route path="/subscriptions" element={<SubscriptionCard />} />
           <Route path="/plan" element={<Plans />} />

@@ -93,7 +93,7 @@ const handleAddToCartClick = async () => {
 
   return (
     <div className="min-h-screen bg-[#050505] text-white font-sans pb-28" dir={isAr ? "rtl" : "ltr"}>
-      <Toaster position="top-center" reverseOrder={false} />
+      
 
       {/* Header */}
       <header className="sticky top-0 z-40 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 px-6 py-6">
