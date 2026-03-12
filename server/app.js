@@ -9,10 +9,8 @@ const { Server } = require("socket.io");
 dotenv.config();
 const app = express();
 
-// 1. إنشاء السيرفر
 const server = http.createServer(app);
 
-// 2. إعداد الـ Socket.io مع السماح لكل الاتصالات (CORS)
 const io = new Server(server, {
   cors: {
     origin: "*",
@@ -20,18 +18,14 @@ const io = new Server(server, {
   },
 });
 
-// 3. تخزين io في app لاستخدامه في الـ Controllers (مهم جداً قبل الـ Routes)
 app.set("io", io);
 
-// الاتصال بقاعدة البيانات
 connectDB();
 
-// Middlewares
 app.use(cors());
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
-// استيراد الروابط
 const jobRoutes = require("./routes/jobRoutes");
 const applicationRoutes = require("./routes/applicationRoutes");
 const userRoutes = require("./routes/userRoutes");
@@ -45,8 +39,8 @@ const locationRoutes = require("./routes/locationsRoutes");
 const subRoutes = require("./routes/subRoutes");
 const SubOrderRoutes = require("./routes/subOrderRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const userProgramRoutes = require("./routes/userProgramRoutes");
 
-// تسجيل الروابط
 app.use("/api/jobs", jobRoutes);
 app.use("/api/apply", applicationRoutes);
 app.use("/api", userRoutes);
@@ -59,11 +53,9 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/locations", locationRoutes);
 app.use("/api/subscriptions", subRoutes);
 app.use("/api/sub-orders", SubOrderRoutes);
-// app.use("/api/users", userRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/user-programs", userProgramRoutes);
 
-// مراقبة اتصال الشيف
 io.on("connection", (socket) => {});
 
-// تصدير الكائنين (تأكد من تعديل index.js لاستقبالهم)
 module.exports = { app, server };

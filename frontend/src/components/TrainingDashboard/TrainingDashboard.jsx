@@ -1,34 +1,88 @@
 import React, { useState } from "react";
-import PlanCard from "./components/PlanCard";
 import DashboardTabs from "./components/DashboardTabs";
 import TrainingDayCard from "./components/TrainingDayCard";
 import NutritionMealCard from "./components/NutritionMealCard";
+import { Send, CheckCircle, XCircle, Search, Filter } from "lucide-react";
 
-const TrainingDashboard = ({
-  plansData,
-  nutritionData,
-  title,
-  description,
-  isEditMode,
-  plansHook,
-  nutritionHook,
-}) => {
-  const [activePlanId, setActivePlanId] = useState(Object.keys(plansData)[0]);
+const TrainingDashboard = ({ title, description, isEditMode, programHook }) => {
+  const {
+    data,
+    loading,
+    role,
+    currentUserId,
+    submitProgram,
+    approveProgram,
+    rejectProgram,
+    updateTrainingInfo,
+    updateNutritionInfo,
+  } = programHook;
+
+  const users = Object.values(data);
+  const userKeys = Object.keys(data);
+  const [activeUserId, setActiveUserId] = useState(null);
   const [activeSubTab, setActiveSubTab] = useState("training");
+  const [rejectionReason, setRejectionReason] = useState("");
 
-  const activePlan = plansData[activePlanId] || Object.values(plansData)[0];
-  const safePlanId =
-    activePlanId && plansData[activePlanId]
-      ? activePlanId
-      : Object.keys(plansData)[0];
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
-  if (!activePlan) {
+  const filteredUsers = Object.entries(data).filter(([userId, uProg]) => {
+    const nameMatch = uProg.userId?.username
+      ?.toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const phoneMatch = uProg.userId?.phone?.includes(searchQuery);
+    const matchesSearch = !searchQuery || nameMatch || phoneMatch;
+    const matchesStatus =
+      statusFilter === "all" || uProg.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  if (loading) {
     return (
       <div
-        className="min-h-screen bg-neutral-950 text-white flex items-center justify-center"
+        className="min-h-screen bg-neutral-950 text-white flex items-center justify-center p-8 text-xl animate-pulse"
         dir="rtl"
       >
-        <div className="text-xl animate-pulse">جاري التحميل...</div>
+        جاري التحميل...
+      </div>
+    );
+  }
+
+  let safeUserId = activeUserId;
+  if (role === "user") {
+    safeUserId = currentUserId;
+  } else if (!activeUserId && userKeys.length > 0) {
+    safeUserId = userKeys[0];
+  }
+
+  const activeProgram = data[safeUserId];
+
+  if (role === "user") {
+    if (!activeProgram || activeProgram.status !== "approved") {
+      return (
+        <div
+          className="min-h-[60vh] bg-neutral-950 text-white flex items-center justify-center"
+          dir="rtl"
+        >
+          <div className="text-xl md:text-2xl text-emerald-400 font-bold bg-neutral-900 border border-emerald-500/50 p-8 rounded-3xl shadow-lg text-center">
+            {activeProgram?.status === "submitted"
+              ? "برنامجك الآن قيد المراجعة من قبل الإدارة"
+              : activeProgram?.status === "rejected"
+                ? "يتم الآن تعديل برنامجك من قبل الكوتش"
+                : "أنت الآن في قائمة الانتظار، سيقوم الكوتش بوضع برنامجك قريباً"}
+          </div>
+        </div>
+      );
+    }
+  }
+
+  if (!activeProgram && role !== "user") {
+    return (
+      <div
+        className="min-h-[60vh] bg-neutral-950 text-white flex items-center justify-center"
+        dir="rtl"
+      >
+        <div className="text-xl text-neutral-400">لا يوجد متدربين حالياً</div>
       </div>
     );
   }
@@ -48,16 +102,153 @@ const TrainingDashboard = ({
       </div>
 
       <div className="max-w-6xl mx-auto flex flex-col items-center">
-        <div className="grid grid-cols-3 gap-2 md:gap-4 mb-8 w-full md:w-auto">
-          {Object.entries(plansData).map(([key, plan]) => (
-            <PlanCard
-              key={key}
-              plan={plan}
-              isActive={safePlanId === key}
-              onClick={() => setActivePlanId(key)}
-            />
-          ))}
-        </div>
+        {/* Coach / Admin: User Selector */}
+        {role !== "user" && users.length > 0 && (
+          <div className="w-full mb-8 space-y-4">
+            {/* Filters */}
+            <div className="flex flex-col md:flex-row gap-4 bg-neutral-900 p-4 rounded-2xl border border-neutral-800">
+              <div className="flex-1 relative">
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="ابحث بالاسم أو رقم الهاتف..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl py-3 pr-10 pl-4 text-white focus:border-emerald-500 outline-none transition-colors"
+                />
+              </div>
+              <div className="md:w-64 relative">
+                <Filter className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 w-5 h-5" />
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl py-3 pr-10 pl-4 text-white focus:border-emerald-500 outline-none transition-colors appearance-none"
+                >
+                  <option value="all">جميع الحالات</option>
+                  <option value="waiting">بانتظار الإعداد</option>
+                  <option value="submitted">قيد المراجعة</option>
+                  <option value="approved">تمت الموافقة</option>
+                  <option value="rejected">مرفوض</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="w-full bg-neutral-900 p-4 rounded-2xl flex flex-wrap gap-4 items-center justify-center border border-neutral-800 max-h-64 overflow-y-auto">
+              {filteredUsers.length === 0 ? (
+                <div className="text-neutral-500 py-4 font-bold">
+                  لا يوجد متدربين يطابقون البحث
+                </div>
+              ) : (
+                filteredUsers.map(([userId, uProg]) => {
+                  const isActive = safeUserId === userId;
+                  return (
+                    <button
+                      key={userId}
+                      onClick={() => setActiveUserId(userId)}
+                      className={`px-6 py-3 rounded-xl font-bold transition-colors border flex flex-col items-center gap-1 ${
+                        isActive
+                          ? "bg-emerald-600 border-emerald-500 text-white"
+                          : "bg-neutral-800 border-neutral-700 text-neutral-400 hover:bg-neutral-700"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        {uProg.userId?.username || "بدون اسم"}
+                        <span
+                          className="text-xs opacity-70 bg-black/20 px-2 py-0.5 rounded-full"
+                          dir="ltr"
+                        >
+                          {uProg.userId?.phone || "بدون رقم"}
+                        </span>
+                      </div>
+                      <span className="text-[10px] opacity-70">
+                        (
+                        {uProg.status === "approved"
+                          ? "تمت الموافقة"
+                          : uProg.status === "submitted"
+                            ? "قيد المراجعة"
+                            : uProg.status === "rejected"
+                              ? "مرفوض"
+                              : "بانتظار الإعداد"}
+                        )
+                      </span>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Coach / Lead Coach actions */}
+        {role !== "user" && activeProgram && (
+          <div className="w-full bg-neutral-900 p-6 rounded-2xl border border-neutral-800 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div>
+              <span className="text-neutral-400 ml-2">حالة البرنامج:</span>
+              <span
+                className={`font-bold ${
+                  activeProgram.status === "approved"
+                    ? "text-emerald-400"
+                    : activeProgram.status === "submitted"
+                      ? "text-yellow-400"
+                      : activeProgram.status === "rejected"
+                        ? "text-red-400"
+                        : "text-blue-400"
+                }`}
+              >
+                {activeProgram.status}
+              </span>
+              {activeProgram.status === "rejected" &&
+                activeProgram.rejectionReason && (
+                  <div className="text-red-400 mt-2 text-sm bg-red-500/10 p-2 rounded">
+                    سبب الرفض: {activeProgram.rejectionReason}
+                  </div>
+                )}
+            </div>
+            <div className="flex gap-3 flex-wrap">
+              {role === "coach" &&
+                activeProgram.status !== "approved" &&
+                activeProgram.status !== "submitted" && (
+                  <button
+                    onClick={() => submitProgram(activeProgram._id)}
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl transition-colors shadow-lg font-bold"
+                  >
+                    <Send className="w-4 h-4" /> تقديم الكوتش الرئيسي (Lead
+                    Coach)
+                  </button>
+                )}
+              {(role === "trainer_lead" || role === "admin") &&
+                activeProgram.status === "submitted" && (
+                  <>
+                    <button
+                      onClick={() => approveProgram(activeProgram._id)}
+                      className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl transition-colors shadow-lg font-bold"
+                    >
+                      <CheckCircle className="w-4 h-4" /> موافقة
+                    </button>
+                    <div className="flex bg-neutral-950 border border-neutral-700 rounded-xl overflow-hidden">
+                      <input
+                        value={rejectionReason}
+                        onChange={(e) => setRejectionReason(e.target.value)}
+                        placeholder="سبب الرفض..."
+                        className="bg-transparent text-white px-3 py-2 outline-none w-48 text-sm"
+                      />
+                      <button
+                        onClick={() => {
+                          if (!rejectionReason)
+                            return alert("يرجى كتابة سبب الرفض");
+                          rejectProgram(activeProgram._id, rejectionReason);
+                          setRejectionReason("");
+                        }}
+                        className="flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-3 py-2 transition-colors font-bold text-sm"
+                      >
+                        <XCircle className="w-4 h-4" /> رفض
+                      </button>
+                    </div>
+                  </>
+                )}
+            </div>
+          </div>
+        )}
 
         <div className="w-full bg-neutral-900 rounded-3xl border border-neutral-800 overflow-hidden shadow-2xl">
           <DashboardTabs
@@ -69,31 +260,63 @@ const TrainingDashboard = ({
             {activeSubTab === "training" && (
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="flex flex-col md:flex-row items-center justify-between bg-neutral-950 p-6 rounded-2xl border border-neutral-800">
-                  <div>
-                    <h2 className="text-2xl font-bold mb-2 text-white">
-                      {activePlan.arabicTitle}
-                    </h2>
-                    <p className="text-neutral-400">{activePlan.desc}</p>
-                  </div>
-                  <div className="mt-4 md:mt-0 px-4 py-2 rounded-full border border-neutral-700 bg-neutral-800/50 text-sm font-medium">
-                    الالتزام والانضباط مفتاح النجاح
+                  <div className="w-full">
+                    {isEditMode ? (
+                      <>
+                        <input
+                          value={activeProgram?.trainingPlan?.title || ""}
+                          onChange={(e) =>
+                            updateTrainingInfo(
+                              safeUserId,
+                              "title",
+                              e.target.value,
+                            )
+                          }
+                          className="text-2xl font-bold mb-2 bg-transparent border-b-2 border-dashed border-blue-500/50 px-2 py-1 focus:border-blue-500 outline-none w-full text-white"
+                          placeholder="عنوان البرنامج (مثال: برنامج المبتدئين)"
+                        />
+                        <textarea
+                          value={activeProgram?.trainingPlan?.desc || ""}
+                          onChange={(e) =>
+                            updateTrainingInfo(
+                              safeUserId,
+                              "desc",
+                              e.target.value,
+                            )
+                          }
+                          className="text-neutral-400 w-full bg-transparent border-b-2 border-dashed border-neutral-700 px-2 py-1 mt-2 focus:border-blue-500 outline-none resize-none"
+                          placeholder="وصف البرنامج"
+                          rows={2}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <h2 className="text-2xl font-bold mb-2 text-white">
+                          {activeProgram?.trainingPlan?.title ||
+                            "برنامج التدريب"}
+                        </h2>
+                        <p className="text-neutral-400">
+                          {activeProgram?.trainingPlan?.desc}
+                        </p>
+                      </>
+                    )}
                   </div>
                 </div>
 
                 <div className="grid gap-6 items-stretch">
-                  {activePlan.training.map((day, dIdx) => (
+                  {activeProgram?.trainingPlan?.training?.map((day, dIdx) => (
                     <TrainingDayCard
                       key={dIdx}
                       day={day}
                       dayIndex={dIdx}
-                      planId={safePlanId}
+                      planId={safeUserId}
                       isEditMode={isEditMode}
-                      plansHook={plansHook}
+                      plansHook={programHook}
                     />
                   ))}
                   {isEditMode && (
                     <button
-                      onClick={() => plansHook.addDay(safePlanId)}
+                      onClick={() => programHook.addDay(safeUserId)}
                       className="border-2 border-dashed border-neutral-700 hover:border-emerald-500 hover:bg-emerald-500/5 text-neutral-400 hover:text-emerald-400 rounded-2xl p-6 transition-all duration-300 flex flex-col items-center justify-center gap-3 min-h-[200px]"
                     >
                       <span className="text-4xl">+</span>
@@ -112,10 +335,10 @@ const TrainingDashboard = ({
                   {isEditMode ? (
                     <>
                       <input
-                        value={nutritionData[safePlanId]?.title || ""}
+                        value={activeProgram?.nutritionPlan?.title || ""}
                         onChange={(e) =>
-                          nutritionHook.updateNutritionInfo(
-                            safePlanId,
+                          updateNutritionInfo(
+                            safeUserId,
                             "title",
                             e.target.value,
                           )
@@ -124,10 +347,10 @@ const TrainingDashboard = ({
                         placeholder="عنوان برنامج التغذية"
                       />
                       <textarea
-                        value={nutritionData[safePlanId]?.desc || ""}
+                        value={activeProgram?.nutritionPlan?.desc || ""}
                         onChange={(e) =>
-                          nutritionHook.updateNutritionInfo(
-                            safePlanId,
+                          updateNutritionInfo(
+                            safeUserId,
                             "desc",
                             e.target.value,
                           )
@@ -139,32 +362,31 @@ const TrainingDashboard = ({
                     </>
                   ) : (
                     <>
-                      <h2 className="text-2xl font-bold mb-2">
-                        {nutritionData[safePlanId]?.title}
+                      <h2 className="text-2xl font-bold mb-2 text-white">
+                        {activeProgram?.nutritionPlan?.title ||
+                          "برنامج التغذية"}
                       </h2>
                       <p className="text-neutral-400">
-                        {nutritionData[safePlanId]?.desc}
+                        {activeProgram?.nutritionPlan?.desc}
                       </p>
                     </>
                   )}
                 </div>
 
                 <div className="space-y-6">
-                  {(nutritionData[safePlanId]?.meals || []).map(
-                    (meal, mIdx) => (
-                      <NutritionMealCard
-                        key={mIdx}
-                        meal={meal}
-                        mealIndex={mIdx}
-                        planId={safePlanId}
-                        isEditMode={isEditMode}
-                        nutritionHook={nutritionHook}
-                      />
-                    ),
-                  )}
+                  {activeProgram?.nutritionPlan?.meals?.map((meal, mIdx) => (
+                    <NutritionMealCard
+                      key={mIdx}
+                      meal={meal}
+                      mealIndex={mIdx}
+                      planId={safeUserId}
+                      isEditMode={isEditMode}
+                      nutritionHook={programHook}
+                    />
+                  ))}
                   {isEditMode && (
                     <button
-                      onClick={() => nutritionHook.addMeal(safePlanId)}
+                      onClick={() => programHook.addMeal(safeUserId)}
                       className="w-full border-2 border-dashed border-neutral-700 hover:border-emerald-500 hover:bg-emerald-500/5 text-neutral-400 hover:text-emerald-400 rounded-2xl p-6 transition-all duration-300 flex flex-col items-center justify-center gap-3 min-h-[150px]"
                     >
                       <span className="text-4xl">+</span>
