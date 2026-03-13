@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Shield, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -18,7 +18,6 @@ export default function LoginPage() {
   const API_URL = import.meta.env.VITE_BASE_URL;
   const isAr = i18n.language === "ar";
 
-  // دالة تحويل الرقم للصيغة الدولية 962
   const formatPhoneForServer = (inputPhone) => {
     let clean = inputPhone.replace(/\s/g, "");
     if (clean.startsWith("0")) {
@@ -27,8 +26,11 @@ export default function LoginPage() {
     return clean.startsWith("962") ? clean : "962" + clean;
   };
 
-  const handleSendOTP = async () => {
-    if (phone.length < 9) return;
+  // إرسال الرمز (يتم استدعاؤها عند الضغط على الزر أو Enter)
+  const handleSendOTP = async (e) => {
+    if (e) e.preventDefault(); // لمنع تحديث الصفحة إذا استخدمنا Form
+    if (phone.length < 9 || isLoading) return;
+
     setIsLoading(true);
     try {
       const serverPhone = formatPhoneForServer(phone);
@@ -43,9 +45,9 @@ export default function LoginPage() {
     }
   };
 
-  const handleVerify = async () => {
-    const otpString = otp.join("");
-    if (otpString.length < 4) return;
+  // التحقق من الرمز (تم فصل المنطق ليدعم التلقائية)
+  const verifyOTPCode = async (otpString) => {
+    if (otpString.length < 4 || isLoading) return;
     setIsLoading(true);
 
     try {
@@ -63,6 +65,9 @@ export default function LoginPage() {
       }
     } catch (error) {
       alert(error.response?.data?.msg || t("invalid_otp"));
+      // تصفير الـ OTP في حال الخطأ لتسهيل المحاولة مرة أخرى
+      setOtp(["", "", "", ""]);
+      otpRefs.current[0].focus();
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +78,17 @@ export default function LoginPage() {
     const newOtp = [...otp];
     newOtp[index] = value.slice(-1);
     setOtp(newOtp);
-    if (value && index < 3) otpRefs.current[index + 1].focus();
+
+    // الانتقال للحقل التالي
+    if (value && index < 3) {
+      otpRefs.current[index + 1].focus();
+    }
+
+    // التحقق التلقائي إذا اكتملت الأرقام الـ 4
+    const currentOtpString = newOtp.join("");
+    if (currentOtpString.length === 4) {
+      verifyOTPCode(currentOtpString);
+    }
   };
 
   return (
@@ -124,13 +139,14 @@ export default function LoginPage() {
 
           <div className="space-y-6">
             {step === "phone" ? (
-              <div className="space-y-4">
+              <form onSubmit={handleSendOTP} className="space-y-4">
                 <div
                   className="flex items-center gap-3 bg-white/5 border border-white/10 p-5 rounded-xl focus-within:border-orange-500 transition-all"
                   dir="ltr"
                 >
                   <input
                     type="tel"
+                    autoFocus
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="07XXXXXXXX"
@@ -138,13 +154,13 @@ export default function LoginPage() {
                   />
                 </div>
                 <button
-                  onClick={handleSendOTP}
+                  type="submit"
                   disabled={phone.length < 9 || isLoading}
                   className="w-full bg-orange-500 py-5 rounded-xl font-black italic uppercase tracking-widest text-white hover:bg-orange-600 transition-all shadow-[0_0_30px_rgba(249,115,22,0.2)] disabled:opacity-40 active:scale-95"
                 >
                   {isLoading ? t("initializing") : t("request_code")}
                 </button>
-              </div>
+              </form>
             ) : (
               <div className="space-y-6">
                 <div className="flex justify-center gap-3" dir="ltr">
@@ -153,28 +169,31 @@ export default function LoginPage() {
                       key={i}
                       ref={(el) => (otpRefs.current[i] = el)}
                       type="text"
+                      inputMode="numeric"
                       maxLength={1}
                       value={digit}
                       onChange={(e) => handleOtpChange(i, e.target.value)}
-                      onKeyDown={(e) =>
-                        e.key === "Backspace" &&
-                        !otp[i] &&
-                        i > 0 &&
-                        otpRefs.current[i - 1].focus()
-                      }
+                      onKeyDown={(e) => {
+                        if (e.key === "Backspace" && !otp[i] && i > 0) {
+                          otpRefs.current[i - 1].focus();
+                        }
+                      }}
                       className="h-14 w-12 rounded-xl border border-white/10 bg-white/5 text-center text-2xl font-black text-orange-500 outline-none focus:border-orange-500 transition-all shadow-lg"
                     />
                   ))}
                 </div>
                 <button
-                  onClick={handleVerify}
-                  disabled={isLoading}
+                  onClick={() => verifyOTPCode(otp.join(""))}
+                  disabled={isLoading || otp.join("").length < 4}
                   className="w-full bg-white text-black py-5 rounded-xl font-black italic uppercase tracking-widest hover:bg-orange-500 hover:text-white transition-all active:scale-95 disabled:opacity-50"
                 >
                   {isLoading ? t("verifying") : t("confirm_enter")}
                 </button>
                 <button
-                  onClick={() => setStep("phone")}
+                  onClick={() => {
+                    setStep("phone");
+                    setOtp(["", "", "", ""]);
+                  }}
                   className="w-full text-[10px] font-bold text-white/20 uppercase hover:text-orange-500 transition-colors"
                 >
                   {t("different_number")}

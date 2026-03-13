@@ -27,6 +27,7 @@ import Loading from "../../common/Loading";
 const AdminUsersPage = () => {
   const { t, i18n } = useTranslation();
   const [users, setUsers] = useState([]);
+  const [hasSubscriptions, setHasSubscriptions] = useState(false);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -65,8 +66,22 @@ const AdminUsersPage = () => {
     }
   };
 
+  const fetchSubscriptions = async () => {
+    const token = getAuthToken();
+    if (!token) return;
+    try {
+      const res = await axios.get(`${API_URL}/subscriptions`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setHasSubscriptions(Array.isArray(res.data) && res.data.length > 0);
+    } catch (err) {
+      setHasSubscriptions(false);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
+    fetchSubscriptions();
   }, []);
 
   const handleAddUser = async () => {
@@ -138,7 +153,6 @@ const AdminUsersPage = () => {
     >
       {/* التوست يظهر تحت الهيدر مباشرة بمسافة أمان */}
 
-
       <div className="max-w-6xl mx-auto space-y-6 pt-16">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-black text-white p-8 rounded-[2rem] shadow-2xl border-b-4 border-red-600">
@@ -150,12 +164,14 @@ const AdminUsersPage = () => {
               {t("staff_mgmt_subtitle")}
             </p>
           </div>
-          <div className="mt-4 md:mt-0 bg-red-600 px-8 py-3 rounded-2xl text-center min-w-[120px]">
-            <p className="text-[10px] font-bold text-red-100 uppercase">
-              {t("total_accounts")}
-            </p>
-            <p className="text-3xl font-black">{users.length}</p>
-          </div>
+          {hasSubscriptions && (
+            <div className="mt-4 md:mt-0 bg-red-600 px-8 py-3 rounded-2xl text-center min-w-[120px]">
+              <p className="text-[10px] font-bold text-red-100 uppercase">
+                {t("total_accounts")}
+              </p>
+              <p className="text-3xl font-black">{users.length}</p>
+            </div>
+          )}
         </div>
 
         {/* Add Staff Card */}

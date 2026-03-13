@@ -45,7 +45,10 @@ const uploadRoutes = require("./routes/uploadRoutes");
 
 app.use("/api/jobs", jobRoutes);
 app.use("/api/apply", applicationRoutes);
+// app.use("/api", userRoutes);
+app.use("/api/users", userRoutes); // ضيف كلمة users هون
 app.use("/api", userRoutes);
+
 app.use("/api/plans", fitnessPlanRoutes);
 app.use("/api/nutrition", nutritionRoutes);
 app.use("/api/chef", chefRoutes);

@@ -11,6 +11,23 @@ const validateJWT = require("../middleware/validateJWT");
 // ==========================================
 
 // طلب رمز التحقق (للمشتركين)
+
+// جلب بيانات المستخدم الحالي
+routes.get("/me", validateJWT, async (req, res) => {
+  try {
+    // req.user جاية من الـ Middleware اللي بعته إنت هسا
+    if (req.user._id === "123") {
+      return res.json(req.user); // للآدمن المؤقت
+    }
+
+    const user = await User.findById(req.user._id).select("-password -otp");
+    if (!user) return res.status(404).json({ msg: "المستخدم غير موجود" });
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ msg: "خطأ في السيرفر" });
+  }
+});
 routes.post("/login", async (req, res) => {
   const { phone } = req.body;
   try {
