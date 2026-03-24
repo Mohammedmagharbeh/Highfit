@@ -71,6 +71,7 @@ export const useUserPrograms = () => {
         return axios.put(`${API_URL}/${program._id}`, {
           trainingPlan: program.trainingPlan,
           nutritionPlan: program.nutritionPlan,
+          status: program.status === 'rejected' ? 'waiting' : program.status,
         });
       });
       await Promise.all(updates);
@@ -84,34 +85,67 @@ export const useUserPrograms = () => {
     }
   };
 
-  const submitProgram = async (programId) => {
+  const submitProgram = async (programId, coachNote = "") => {
     try {
-      await axios.post(`${API_URL}/${programId}/submit`, { coachId: currentUserId });
+      // Find the program data to save first before submitting
+      const programToSave = Object.values(data).find(p => p._id === programId);
+      if (programToSave) {
+        await axios.put(`${API_URL}/${programId}`, {
+          trainingPlan: programToSave.trainingPlan,
+          nutritionPlan: programToSave.nutritionPlan,
+          status: programToSave.status === 'rejected' ? 'waiting' : programToSave.status,
+        });
+      }
+      
+      await axios.post(`${API_URL}/${programId}/submit`, { coachId: currentUserId, coachNote });
       toast.success("تم التقديم بنجاح");
       fetchData();
     } catch (error) {
+      console.error(error);
       toast.error("فشل التقديم");
     }
   };
 
   const approveProgram = async (programId) => {
     try {
+      // Pre-save any unsaved edits before approving
+      const programToSave = Object.values(data).find(p => p._id === programId);
+      if (programToSave) {
+        await axios.put(`${API_URL}/${programId}`, {
+          trainingPlan: programToSave.trainingPlan,
+          nutritionPlan: programToSave.nutritionPlan,
+          status: programToSave.status,
+        });
+      }
+
       await axios.post(`${API_URL}/${programId}/approve`);
       toast.success("تمت الموافقة بنجاح");
       fetchData();
     } catch (error) {
+      console.error(error);
       toast.error("فشل الموافقة");
     }
   };
 
   const rejectProgram = async (programId, reason) => {
     try {
+      // Pre-save any unsaved edits before rejecting
+      const programToSave = Object.values(data).find(p => p._id === programId);
+      if (programToSave) {
+        await axios.put(`${API_URL}/${programId}`, {
+          trainingPlan: programToSave.trainingPlan,
+          nutritionPlan: programToSave.nutritionPlan,
+          status: programToSave.status,
+        });
+      }
+
       await axios.post(`${API_URL}/${programId}/reject`, {
         rejectionReason: reason,
       });
       toast.success("تم الرفض بنجاح");
       fetchData();
     } catch (error) {
+      console.error(error);
       toast.error("فشل الرفض");
     }
   };

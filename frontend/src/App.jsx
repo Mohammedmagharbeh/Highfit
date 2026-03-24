@@ -80,6 +80,7 @@ import Header from "./components/Header";
 import SubscriptionCard from "./components/SubscriptionCard";
 import AdminSubscriptions from "./components/AdminSubscriptions";
 import Plans from "./components/Plans";
+import DefaultTemplates from "./components/DefaultTemplates";
 import { CartProvider } from "./context/CartContext";
 import { UserProvider } from "./context/userContext";
 import { useTranslation } from "react-i18next";
@@ -144,6 +145,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <TrainingNutrition />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/templates"
+            element={
+              <ProtectedRoute>
+                <DefaultTemplates />
               </ProtectedRoute>
             }
           />

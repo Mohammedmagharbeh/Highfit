@@ -45,6 +45,7 @@ const userProgramSchema = new mongoose.Schema(
       default: "waiting",
     },
     rejectionReason: { type: String, default: "" },
+    coachNote: { type: String, default: "" },
 
     trainingPlan: {
       title: { type: String, default: "برنامج التدريب" },

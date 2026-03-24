@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-const API_URL = `${import.meta.env.VITE_BASE_URL}/plans`;
+const API_URL = `${import.meta.env.VITE_BASE_URL}/nutrition`;
 export const useEditableNutrition = () => {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
@@ -196,6 +196,20 @@ export const useEditableNutrition = () => {
     });
   };
 
+  const deleteTemplate = async (planId) => {
+    try {
+      await axios.delete(`${API_URL}/${planId}`);
+      setData(prev => {
+        const newData = { ...prev };
+        delete newData[planId];
+        return newData;
+      });
+    } catch (e) {
+      console.error(e);
+      toast.error("فشل حذف قالب التغذية");
+    }
+  };
+
   return {
     data,
     loading,
@@ -209,5 +223,6 @@ export const useEditableNutrition = () => {
     deleteOption,
     updateOption,
     updateNutritionInfo,
+    deleteTemplate,
   };
 };

@@ -23,10 +23,18 @@ exports.getUserProgram = async (req, res) => {
 exports.updateProgram = async (req, res) => {
   try {
     const { id } = req.params;
-    const { trainingPlan, nutritionPlan } = req.body;
+    const { trainingPlan, nutritionPlan, status } = req.body;
+    
+    let updateFields = { trainingPlan, nutritionPlan, rejectionReason: '' };
+    if (status) {
+      updateFields.status = status;
+    } else {
+      updateFields.status = 'waiting';
+    }
+
     const program = await UserProgram.findByIdAndUpdate(
       id,
-      { trainingPlan, nutritionPlan, status: 'waiting', rejectionReason: '' },
+      updateFields,
       { new: true }
     );
     res.status(200).json(program);
@@ -39,10 +47,11 @@ exports.updateProgram = async (req, res) => {
 exports.submitProgram = async (req, res) => {
   try {
     const { id } = req.params;
-    const { coachId } = req.body;
+    const { coachId, coachNote } = req.body;
 
     let updateFields = { status: 'submitted' };
     if (coachId) updateFields.coachId = coachId;
+    if (coachNote !== undefined) updateFields.coachNote = coachNote;
 
     const program = await UserProgram.findByIdAndUpdate(
       id,

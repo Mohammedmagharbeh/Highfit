@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import DashboardTabs from "./components/DashboardTabs";
 import TrainingDayCard from "./components/TrainingDayCard";
 import NutritionMealCard from "./components/NutritionMealCard";
-import { Send, CheckCircle, XCircle, Search, Filter } from "lucide-react";
+import { Send, CheckCircle, XCircle, Search, Filter, MessageSquare } from "lucide-react";
 
-const TrainingDashboard = ({ title, description, isEditMode, programHook }) => {
+const TrainingDashboard = ({ title, description, isEditMode, programHook, trainingTemplates, nutritionTemplates }) => {
   const {
     data,
     loading,
@@ -203,18 +203,101 @@ const TrainingDashboard = ({ title, description, isEditMode, programHook }) => {
                     سبب الرفض: {activeProgram.rejectionReason}
                   </div>
                 )}
+              {activeProgram.coachNote && (role === "trainer_lead" || role === "admin" || role === "coach") && (
+                <div className="mt-4 bg-blue-500/10 border border-blue-500/30 p-5 rounded-2xl flex items-start gap-4 w-full">
+                  <div className="bg-blue-500/20 p-2 rounded-xl shrink-0 mt-0.5">
+                    <MessageSquare className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <div className="flex-1 w-full">
+                    <div className="font-extrabold text-blue-400 mb-2 text-sm">ملاحظة الكوتش لمسؤول التدريب:</div>
+                    <div className="text-neutral-300 leading-relaxed whitespace-pre-wrap text-sm break-words w-full">
+                      {activeProgram.coachNote}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="flex gap-3 flex-wrap">
-              {role === "coach" &&
+            <div className="flex gap-3 flex-wrap items-center">
+              {(role === "coach" || role === "trainer_lead" || role === "admin") &&
                 activeProgram.status !== "approved" &&
                 activeProgram.status !== "submitted" && (
-                  <button
-                    onClick={() => submitProgram(activeProgram._id)}
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl transition-colors shadow-lg font-bold"
-                  >
-                    <Send className="w-4 h-4" /> تقديم الكوتش الرئيسي (Lead
-                    Coach)
-                  </button>
+                  <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-3xl w-full mt-4 shadow-xl">
+                    <h3 className="text-xl font-extrabold text-white mb-6 border-b border-neutral-800 pb-4">
+                      {role === "coach" ? "تجهيز وتقديم البرنامج" : "إعداد القالب الافتراضي"}
+                    </h3>
+                    
+                    <div className="flex flex-col md:flex-row gap-6">
+                      <div className="w-full md:w-1/3 flex flex-col gap-3">
+                        <label className="text-sm font-bold text-neutral-400 block">قم باختيار باقة المتدرب (القالب):</label>
+                        <select
+                          onChange={(e) => {
+                            const id = e.target.value;
+                            if (!id) return;
+                            
+                            // Assign Training
+                            if (programHook.updateTrainingInfo) {
+                              const t = trainingTemplates?.[id];
+                              if (t) {
+                                programHook.updateTrainingInfo(safeUserId, "training", t.training || []);
+                                programHook.updateTrainingInfo(safeUserId, "title", t.arabicTitle || t.title || id);
+                                programHook.updateTrainingInfo(safeUserId, "desc", t.desc || "");
+                              }
+                            }
+                            
+                            // Assign Nutrition
+                            if (programHook.updateNutritionInfo) {
+                              const n = nutritionTemplates?.[id];
+                              if (n) {
+                                programHook.updateNutritionInfo(safeUserId, "meals", n.meals || []);
+                                programHook.updateNutritionInfo(safeUserId, "title", n.title || id);
+                                programHook.updateNutritionInfo(safeUserId, "desc", n.desc || "");
+                              }
+                            }
+                          }}
+                          className="bg-neutral-950 border border-neutral-700 text-white rounded-xl p-4 text-sm focus:border-blue-500 hover:border-blue-500/50 outline-none w-full shadow-inner font-bold transition-all cursor-pointer"
+                          defaultValue=""
+                        >
+                          <option value="" disabled>-- اضغط لاختيار القالب --</option>
+                          {Array.from(new Set([
+                            ...(trainingTemplates ? Object.keys(trainingTemplates) : []),
+                            ...(nutritionTemplates ? Object.keys(nutritionTemplates) : [])
+                          ])).map((id) => {
+                            const name = trainingTemplates?.[id]?.arabicTitle || trainingTemplates?.[id]?.title || nutritionTemplates?.[id]?.title || id;
+                            return <option key={id} value={id}>{name}</option>;
+                          })}
+                        </select>
+                        <p className="text-xs text-neutral-500 leading-relaxed max-w-xs mt-1">
+                          سيتم تلقائياً تذويق برنامج التدريب والتغذية للمشترك وتعبئة كافة الجداول.
+                        </p>
+                      </div>
+
+                      {role === "coach" && (
+                        <div className="w-full md:w-2/3 flex flex-col gap-3 pl-0 md:border-r border-neutral-800 md:pr-6">
+                          <label className="text-sm font-bold text-neutral-400 block mb-1">
+                            هل لديك ملاحظات أو طلبات خاصة للـ Lead Coach حول هذا المتدرب؟ (اختياري)
+                          </label>
+                          <textarea
+                            id={`coachNote-${activeProgram._id}`}
+                            placeholder="اكتب ملاحظاتك هنا..."
+                            className="bg-neutral-950 border border-neutral-700 text-neutral-200 rounded-xl p-4 text-sm focus:border-blue-500 hover:border-blue-500/50 transition-all outline-none w-full resize-none min-h-[100px] leading-relaxed shadow-inner"
+                          />
+                          <div className="flex justify-end mt-2">
+                            <button
+                              onClick={() => {
+                                const noteInput = document.getElementById(`coachNote-${activeProgram._id}`);
+                                submitProgram(activeProgram._id, noteInput?.value || "");
+                                if (noteInput) noteInput.value = "";
+                              }}
+                              className="flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-500 text-white px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-blue-500/20 font-bold w-full md:w-auto hover:scale-105"
+                            >
+                              <Send className="w-5 h-5" /> 
+                              <span>تقديم لـ (Lead Coach)</span>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 )}
               {(role === "trainer_lead" || role === "admin") &&
                 activeProgram.status === "submitted" && (

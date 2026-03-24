@@ -2,6 +2,9 @@ import { useState } from "react";
 import TrainingDashboard from "./TrainingDashboard/TrainingDashboard";
 import { useUserPrograms } from "../hooks/useUserPrograms";
 import { Edit2, Save } from "lucide-react";
+import DefaultTemplates from "./DefaultTemplates";
+import { useEditablePlans } from "../hooks/useEditablePlans";
+import { useEditableNutrition } from "../hooks/useEditableNutrition";
 import { Toaster } from "react-hot-toast";
 
 const TrainingNutrition = () => {
@@ -9,11 +12,44 @@ const TrainingNutrition = () => {
   const [isEditMode, setIsEditMode] = useState(false);
 
   const role = programHook.role;
-  const isCoachOrLead =
-    role === "coach" || role === "trainer_lead" || role === "admin";
+  const isCoach = role === "coach";
+  const isAdminOrLead = role === "trainer_lead" || role === "admin";
+  const [activeMainTab, setActiveMainTab] = useState("users");
+
+  const plansHook = useEditablePlans();
+  const nutritionHook = useEditableNutrition();
 
   return (
-    <div className="relative">
+    <div className="relative pt-6">
+      {(isAdminOrLead || isCoach) && (
+        <div className="flex justify-center mb-6 relative z-50">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-1 flex shadow-lg flex-row-reverse" dir="rtl">
+            <button
+              onClick={() => setActiveMainTab("users")}
+              className={`px-6 py-2 rounded-xl font-bold transition-all ${
+                activeMainTab === "users"
+                  ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+                  : "text-neutral-400 hover:bg-neutral-800"
+              }`}
+            >
+              برامج المشتركين
+            </button>
+            <button
+              onClick={() => setActiveMainTab("templates")}
+              className={`px-6 py-2 rounded-xl font-bold transition-all ${
+                activeMainTab === "templates"
+                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-500/20"
+                  : "text-neutral-400 hover:bg-neutral-800"
+              }`}
+            >
+              القوالب الافتراضية
+            </button>
+          </div>
+        </div>
+      )}
+
+      {activeMainTab === "users" ? (
+        <div className="relative">
       
       <div className="absolute top-4 right-4 md:right-8 z-50 flex gap-3">
         {isEditMode ? (
@@ -42,13 +78,13 @@ const TrainingNutrition = () => {
             </button>
           </>
         ) : (
-          isCoachOrLead && (
+          isAdminOrLead && (
             <button
               onClick={() => setIsEditMode(true)}
               className="flex items-center gap-2 bg-neutral-800 hover:bg-neutral-700 text-white px-4 py-2 rounded-xl transition-colors shadow-lg border border-neutral-700 font-bold"
               dir="rtl"
             >
-              <Edit2 className="w-4 h-4" /> تعديل المحتوى
+              <Edit2 className="w-4 h-4" /> تعديل المحتوى اليدوي
             </button>
           )
         )}
@@ -56,9 +92,15 @@ const TrainingNutrition = () => {
       <TrainingDashboard
         title="برامج التدريب والتغذية"
         description="رحلتك في بناء جسم مثالي وصحي مع برامجنا المتكاملة، متابعة من الكوتش الخاص بك."
-        isEditMode={isEditMode}
+        isEditMode={isEditMode || false}
         programHook={programHook}
+        trainingTemplates={plansHook.data}
+        nutritionTemplates={nutritionHook.data}
       />
+        </div>
+      ) : (
+        <DefaultTemplates />
+      )}
     </div>
   );
 };

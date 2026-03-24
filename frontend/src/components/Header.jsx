@@ -418,7 +418,8 @@ function Header() {
         return [
           { to: "/admin/users", label: "USERS", icon: ShieldCheck },
           { to: "/admin/subscriptions", label: "subscriptions", icon: LayoutDashboard },
-          { to: "/adminjobs", label: "admin_jobs", icon: UserCircle }
+          { to: "/adminjobs", label: "admin_jobs", icon: UserCircle },
+          { to: "/templates", label: "templates", icon: ClipboardList }
         ];
       case "chef":
         return [
@@ -427,7 +428,8 @@ function Header() {
       case "coach":
       case "trainer_lead":
         return [
-          { to: "/plans", label: "plans", icon: ClipboardList }
+          { to: "/plans", label: "plans", icon: ClipboardList },
+          { to: "/templates", label: "templates", icon: ClipboardList }
         ];
       default: // user
         return [

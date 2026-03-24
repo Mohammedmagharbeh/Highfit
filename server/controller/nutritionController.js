@@ -74,3 +74,16 @@ exports.saveAllNutrition = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// @desc    Delete a specific nutrition program
+// @route   DELETE /api/nutrition/:programId
+exports.deleteNutrition = async (req, res) => {
+  try {
+    const { programId } = req.params;
+    await NutritionProgram.findOneAndDelete({ programId });
+    res.status(200).json({ message: "Nutrition deleted successfully!" });
+  } catch (error) {
+    console.error("Error deleting nutrition:", error);
+    res.status(500).json({ message: "Failed to delete nutrition", error: error.message });
+  }
+};

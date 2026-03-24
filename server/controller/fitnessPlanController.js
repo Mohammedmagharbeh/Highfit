@@ -65,3 +65,16 @@ exports.saveAllPlans = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// @desc    Delete a specific fitness plan
+// @route   DELETE /api/plans/:planId
+exports.deletePlan = async (req, res) => {
+  try {
+    const { planId } = req.params;
+    await FitnessPlan.findOneAndDelete({ planId });
+    res.status(200).json({ message: "Plan deleted successfully!" });
+  } catch (error) {
+    console.error("Error deleting plan:", error);
+    res.status(500).json({ message: "Failed to delete plan", error: error.message });
+  }
+};

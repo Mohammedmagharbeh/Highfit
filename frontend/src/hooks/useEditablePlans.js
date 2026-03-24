@@ -171,6 +171,30 @@ export const useEditablePlans = () => {
     });
   };
 
+  const updateTrainingInfo = (planId, key, value) => {
+    setData((prev) => {
+      const plan = prev[planId] || { training: [] };
+      return {
+        ...prev,
+        [planId]: { ...plan, [key]: value },
+      };
+    });
+  };
+
+  const deleteTemplate = async (planId) => {
+    try {
+      await axios.delete(`${API_URL}/${planId}`);
+      setData(prev => {
+        const newData = { ...prev };
+        delete newData[planId];
+        return newData;
+      });
+    } catch (e) {
+      console.error(e);
+      toast.error("فشل حذف قالب التدريب");
+    }
+  };
+
   return {
     data,
     loading,
@@ -183,5 +207,7 @@ export const useEditablePlans = () => {
     addExercise,
     deleteExercise,
     updateExercise,
+    updateTrainingInfo,
+    deleteTemplate,
   };
 };
