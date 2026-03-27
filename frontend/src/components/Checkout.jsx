@@ -47,10 +47,9 @@ const Checkout = () => {
     if (orderType === "delivery" && token) {
       const fetchLocations = async () => {
         try {
-          const res = await axios.get(
-            `${import.meta.env.VITE_BASE_URL}/locations/get`,
-            { headers: { Authorization: `Bearer ${token}` } },
-          );
+          const res = await axios.get(`api/locations/get`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
           setLocations(res.data.locations || []);
         } catch (error) {
           console.error("Fetch locations error", error);
@@ -110,11 +109,9 @@ const Checkout = () => {
         })),
       };
 
-      const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/orders`,
-        orderPayload,
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
+      const response = await axios.post(`api/orders`, orderPayload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (response.status === 201 || response.status === 200) {
         toast.success(t("order_success_msg"), { id: loadingToast });

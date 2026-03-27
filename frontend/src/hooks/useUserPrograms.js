@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-const API_URL = `${import.meta.env.VITE_BASE_URL}/user-programs`;
+const API_URL = `api/user-programs`;
 
 export const useUserPrograms = () => {
   const [data, setData] = useState({});
@@ -71,7 +71,7 @@ export const useUserPrograms = () => {
         return axios.put(`${API_URL}/${program._id}`, {
           trainingPlan: program.trainingPlan,
           nutritionPlan: program.nutritionPlan,
-          status: program.status === 'rejected' ? 'waiting' : program.status,
+          status: program.status === "rejected" ? "waiting" : program.status,
         });
       });
       await Promise.all(updates);
@@ -88,16 +88,24 @@ export const useUserPrograms = () => {
   const submitProgram = async (programId, coachNote = "") => {
     try {
       // Find the program data to save first before submitting
-      const programToSave = Object.values(data).find(p => p._id === programId);
+      const programToSave = Object.values(data).find(
+        (p) => p._id === programId,
+      );
       if (programToSave) {
         await axios.put(`${API_URL}/${programId}`, {
           trainingPlan: programToSave.trainingPlan,
           nutritionPlan: programToSave.nutritionPlan,
-          status: programToSave.status === 'rejected' ? 'waiting' : programToSave.status,
+          status:
+            programToSave.status === "rejected"
+              ? "waiting"
+              : programToSave.status,
         });
       }
-      
-      await axios.post(`${API_URL}/${programId}/submit`, { coachId: currentUserId, coachNote });
+
+      await axios.post(`${API_URL}/${programId}/submit`, {
+        coachId: currentUserId,
+        coachNote,
+      });
       toast.success("تم التقديم بنجاح");
       fetchData();
     } catch (error) {
@@ -109,7 +117,9 @@ export const useUserPrograms = () => {
   const approveProgram = async (programId) => {
     try {
       // Pre-save any unsaved edits before approving
-      const programToSave = Object.values(data).find(p => p._id === programId);
+      const programToSave = Object.values(data).find(
+        (p) => p._id === programId,
+      );
       if (programToSave) {
         await axios.put(`${API_URL}/${programId}`, {
           trainingPlan: programToSave.trainingPlan,
@@ -130,7 +140,9 @@ export const useUserPrograms = () => {
   const rejectProgram = async (programId, reason) => {
     try {
       // Pre-save any unsaved edits before rejecting
-      const programToSave = Object.values(data).find(p => p._id === programId);
+      const programToSave = Object.values(data).find(
+        (p) => p._id === programId,
+      );
       if (programToSave) {
         await axios.put(`${API_URL}/${programId}`, {
           trainingPlan: programToSave.trainingPlan,

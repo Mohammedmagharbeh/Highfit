@@ -31,9 +31,7 @@ export const CartProvider = ({ children }) => {
 
     try {
       setLoading(true);
-      const res = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/cart/${user._id}`,
-      );
+      const res = await fetch(`api/cart/${user._id}`);
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
       setCart(data || { products: [] });
@@ -58,7 +56,7 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_BASE_URL}/cart/add`, {
+      const res = await fetch(`api/cart/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: user._id, mealId, quantity, notes }),
@@ -81,7 +79,7 @@ export const CartProvider = ({ children }) => {
     if (!user?._id) return;
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_BASE_URL}/cart/remove`, {
+      const res = await fetch(`api/cart/remove`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: user._id, mealId }),
@@ -99,7 +97,7 @@ export const CartProvider = ({ children }) => {
     if (!user?._id) return;
 
     try {
-      await fetch(`${import.meta.env.VITE_BASE_URL}/cart/clear/${user._id}`, {
+      await fetch(`api/cart/clear/${user._id}`, {
         method: "DELETE",
       });
       setCart({ products: [], totalPrice: 0 });
