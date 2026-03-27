@@ -1,388 +1,11 @@
-// // import React, { useState, useRef, useEffect } from "react";
-// // import { Shield, ChevronLeft, ChevronRight } from "lucide-react";
-// // import { Link, useNavigate } from "react-router-dom";
-// // import axios from "axios";
-// // import { useCart } from "../context/CartContext";
-// // import { useTranslation } from "react-i18next";
-
-// // export default function LoginPage() {
-// //   const { t, i18n } = useTranslation();
-// //   const [step, setStep] = useState("phone");
-// //   const [phone, setPhone] = useState("");
-// //   const [otp, setOtp] = useState(["", "", "", ""]);
-// //   const [isLoading, setIsLoading] = useState(false);
-// //   const navigate = useNavigate();
-// //   const otpRefs = useRef([]);
-
-// //   const { fetchCart } = useCart();
-// //   const API_URL = import.meta.env.VITE_BASE_URL;
-// //   const isAr = i18n.language === "ar";
-
-// //   const formatPhoneForServer = (inputPhone) => {
-// //     let clean = inputPhone.replace(/\s/g, "");
-// //     if (clean.startsWith("0")) {
-// //       return "962" + clean.substring(1);
-// //     }
-// //     return clean.startsWith("962") ? clean : "962" + clean;
-// //   };
-
-// //   // إرسال الرمز (يتم استدعاؤها عند الضغط على الزر أو Enter)
-// //   const handleSendOTP = async (e) => {
-// //     if (e) e.preventDefault(); // لمنع تحديث الصفحة إذا استخدمنا Form
-// //     if (phone.length < 9 || isLoading) return;
-
-// //     setIsLoading(true);
-// //     try {
-// //       const serverPhone = formatPhoneForServer(phone);
-// //       const response = await axios.post(`${API_URL}/login`, {
-// //         phone: serverPhone,
-// //       });
-// //       if (response.status === 200) setStep("otp");
-// //     } catch (error) {
-// //       alert(error.response?.data?.msg || t("send_failed"));
-// //     } finally {
-// //       setIsLoading(false);
-// //     }
-// //   };
-
-// //   // التحقق من الرمز (تم فصل المنطق ليدعم التلقائية)
-// //   const verifyOTPCode = async (otpString) => {
-// //     if (otpString.length < 4 || isLoading) return;
-// //     setIsLoading(true);
-
-// //     try {
-// //       const serverPhone = formatPhoneForServer(phone);
-// //       const response = await axios.post(`${API_URL}/verify-otp`, {
-// //         phone: serverPhone,
-// //         otp: otpString,
-// //       });
-
-// //       if (response.status === 200) {
-// //         sessionStorage.setItem("token", response.data.token);
-// //         sessionStorage.setItem("user", JSON.stringify(response.data.user));
-// //         if (fetchCart) await fetchCart();
-// //         navigate("/plans");
-// //       }
-// //     } catch (error) {
-// //       alert(error.response?.data?.msg || t("invalid_otp"));
-// //       // تصفير الـ OTP في حال الخطأ لتسهيل المحاولة مرة أخرى
-// //       setOtp(["", "", "", ""]);
-// //       otpRefs.current[0].focus();
-// //     } finally {
-// //       setIsLoading(false);
-// //     }
-// //   };
-
-// //   const handleOtpChange = (index, value) => {
-// //     if (isNaN(value)) return;
-// //     const newOtp = [...otp];
-// //     newOtp[index] = value.slice(-1);
-// //     setOtp(newOtp);
-
-// //     // الانتقال للحقل التالي
-// //     if (value && index < 3) {
-// //       otpRefs.current[index + 1].focus();
-// //     }
-
-// //     // التحقق التلقائي إذا اكتملت الأرقام الـ 4
-// //     const currentOtpString = newOtp.join("");
-// //     if (currentOtpString.length === 4) {
-// //       verifyOTPCode(currentOtpString);
-// //     }
-// //   };
-
-// //   return (
-// //     <div className="relative flex flex-col lg:flex-row min-h-screen bg-[#0a0a0a] text-white overflow-hidden">
-// //       {/* القسم الجمالي */}
-// //       <div className="relative w-full lg:w-1/2 h-[35vh] lg:h-screen p-8 lg:p-16 flex flex-col justify-between border-r border-white/5">
-// //         <img
-// //           src="https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=2070"
-// //           className="absolute inset-0 w-full h-full object-cover opacity-40 grayscale"
-// //           alt="gym"
-// //         />
-// //         <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-[#0a0a0a]/40" />
-// //         <div className="relative z-10 text-white/40">
-// //           <Link
-// //             to="/"
-// //             className="flex items-center gap-2 hover:text-orange-500 uppercase font-black italic text-[10px] tracking-widest transition-all"
-// //           >
-// //             {isAr ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}{" "}
-// //             {t("back_to_arena")}
-// //           </Link>
-// //         </div>
-// //         <div className="relative z-10">
-// //           <h1 className="text-5xl lg:text-8xl font-black italic tracking-tighter uppercase leading-none text-orange-500">
-// //             HIGH <br />
-// //             <span className="text-white">FIT</span>
-// //           </h1>
-// //           <div className="h-2 w-24 bg-orange-500 mt-4" />
-// //         </div>
-// //       </div>
-
-// //       {/* قسم الفورم */}
-// //       <div
-// //         className="relative flex-1 flex items-center justify-center p-6 lg:p-16"
-// //         dir={isAr ? "rtl" : "ltr"}
-// //       >
-// //         <div className="w-full max-w-md space-y-12">
-// //           <div className={`${isAr ? "text-right" : "text-left"} space-y-4`}>
-// //             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20">
-// //               <Shield size={14} className="text-orange-500" />
-// //               <span className="text-[10px] font-black uppercase tracking-widest text-orange-500">
-// //                 {t("secure_protocol")}
-// //               </span>
-// //             </div>
-// //             <h2 className="text-3xl lg:text-4xl font-black italic uppercase">
-// //               {step === "phone" ? t("welcome_back") : t("verify_identity")}
-// //             </h2>
-// //           </div>
-
-// //           <div className="space-y-6">
-// //             {step === "phone" ? (
-// //               <form onSubmit={handleSendOTP} className="space-y-4">
-// //                 <div
-// //                   className="flex items-center gap-3 bg-white/5 border border-white/10 p-5 rounded-xl focus-within:border-orange-500 transition-all"
-// //                   dir="ltr"
-// //                 >
-// //                   <input
-// //                     type="tel"
-// //                     autoFocus
-// //                     value={phone}
-// //                     onChange={(e) => setPhone(e.target.value)}
-// //                     placeholder="07XXXXXXXX"
-// //                     className="bg-transparent outline-none flex-1 text-xl font-bold tracking-[0.2em] text-white"
-// //                   />
-// //                 </div>
-// //                 <button
-// //                   type="submit"
-// //                   disabled={phone.length < 9 || isLoading}
-// //                   className="w-full bg-orange-500 py-5 rounded-xl font-black italic uppercase tracking-widest text-white hover:bg-orange-600 transition-all shadow-[0_0_30px_rgba(249,115,22,0.2)] disabled:opacity-40 active:scale-95"
-// //                 >
-// //                   {isLoading ? t("initializing") : t("request_code")}
-// //                 </button>
-// //               </form>
-// //             ) : (
-// //               <div className="space-y-6">
-// //                 <div className="flex justify-center gap-3" dir="ltr">
-// //                   {otp.map((digit, i) => (
-// //                     <input
-// //                       key={i}
-// //                       ref={(el) => (otpRefs.current[i] = el)}
-// //                       type="text"
-// //                       inputMode="numeric"
-// //                       maxLength={1}
-// //                       value={digit}
-// //                       onChange={(e) => handleOtpChange(i, e.target.value)}
-// //                       onKeyDown={(e) => {
-// //                         if (e.key === "Backspace" && !otp[i] && i > 0) {
-// //                           otpRefs.current[i - 1].focus();
-// //                         }
-// //                       }}
-// //                       className="h-14 w-12 rounded-xl border border-white/10 bg-white/5 text-center text-2xl font-black text-orange-500 outline-none focus:border-orange-500 transition-all shadow-lg"
-// //                     />
-// //                   ))}
-// //                 </div>
-// //                 <button
-// //                   onClick={() => verifyOTPCode(otp.join(""))}
-// //                   disabled={isLoading || otp.join("").length < 4}
-// //                   className="w-full bg-white text-black py-5 rounded-xl font-black italic uppercase tracking-widest hover:bg-orange-500 hover:text-white transition-all active:scale-95 disabled:opacity-50"
-// //                 >
-// //                   {isLoading ? t("verifying") : t("confirm_enter")}
-// //                 </button>
-// //                 <button
-// //                   onClick={() => {
-// //                     setStep("phone");
-// //                     setOtp(["", "", "", ""]);
-// //                   }}
-// //                   className="w-full text-[10px] font-bold text-white/20 uppercase hover:text-orange-500 transition-colors"
-// //                 >
-// //                   {t("different_number")}
-// //                 </button>
-// //               </div>
-// //             )}
-// //           </div>
-// //         </div>
-// //       </div>
-// //     </div>
-// //   );
-// // }
-// import React, { useState, useRef } from "react";
-// import { Shield, ChevronLeft, ChevronRight, User as UserIcon, Phone } from "lucide-react";
-// import { Link, useNavigate } from "react-router-dom";
-// import axios from "axios";
-// import { useCart } from "../context/CartContext";
-// import { useTranslation } from "react-i18next";
-
-// export default function LoginPage() {
-//   const { t, i18n } = useTranslation();
-//   const [step, setStep] = useState("phone");
-//   const [phone, setPhone] = useState("");
-//   const [username, setUsername] = useState(""); // <<< حقل الاسم الجديد هنا
-//   const [otp, setOtp] = useState(["", "", "", ""]);
-//   const [isLoading, setIsLoading] = useState(false);
-//   const navigate = useNavigate();
-//   const otpRefs = useRef([]);
-
-//   const { fetchCart } = useCart();
-//   const API_URL = import.meta.env.VITE_BASE_URL;
-//   const isAr = i18n.language === "ar";
-
-//   const formatPhoneForServer = (inputPhone) => {
-//     let clean = inputPhone.replace(/\s/g, "");
-//     if (clean.startsWith("0")) return "962" + clean.substring(1);
-//     return clean.startsWith("962") ? clean : "962" + clean;
-//   };
-
-//   const handleSendOTP = async (e) => {
-//     if (e) e.preventDefault();
-//     // التحقق أن الاسم والرقم مدخلين
-//     if (phone.length < 9 || !username.trim() || isLoading) return;
-
-//     setIsLoading(true);
-//     try {
-//       const serverPhone = formatPhoneForServer(phone);
-//       const response = await axios.post(`${API_URL}/login`, {
-//         phone: serverPhone,
-//         username: username.trim(), // إرسال الاسم للسيرفر
-//       });
-//       if (response.status === 200) setStep("otp");
-//     } catch (error) {
-//       alert(error.response?.data?.msg || t("send_failed"));
-//     } finally {
-//       setIsLoading(false);
-//     }
-//   };
-
-//   const verifyOTPCode = async (otpString) => {
-//     if (otpString.length < 4 || isLoading) return;
-//     setIsLoading(true);
-//     try {
-//       const serverPhone = formatPhoneForServer(phone);
-//       const response = await axios.post(`${API_URL}/verify-otp`, {
-//         phone: serverPhone,
-//         otp: otpString,
-//       });
-
-//       if (response.status === 200) {
-//         sessionStorage.setItem("token", response.data.token);
-//         sessionStorage.setItem("user", JSON.stringify(response.data.user));
-//         if (fetchCart) await fetchCart();
-//         navigate("/plans");
-//       }
-//     } catch (error) {
-//       alert(error.response?.data?.msg || t("invalid_otp"));
-//       setOtp(["", "", "", ""]);
-//       otpRefs.current[0].focus();
-//     } finally {
-//       setIsLoading(false);
-//     }
-//   };
-
-//   const handleOtpChange = (index, value) => {
-//     if (isNaN(value)) return;
-//     const newOtp = [...otp];
-//     newOtp[index] = value.slice(-1);
-//     setOtp(newOtp);
-//     if (value && index < 3) otpRefs.current[index + 1].focus();
-//     const currentOtpString = newOtp.join("");
-//     if (currentOtpString.length === 4) verifyOTPCode(currentOtpString);
-//   };
-
-//   return (
-//     <div className="relative flex flex-col lg:flex-row min-h-screen bg-[#0a0a0a] text-white overflow-hidden">
-//       {/* القسم الجمالي (يسار) */}
-//       <div className="relative w-full lg:w-1/2 h-[35vh] lg:h-screen p-8 lg:p-16 flex flex-col justify-between border-r border-white/5">
-//         <img src="https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=2070" className="absolute inset-0 w-full h-full object-cover opacity-40 grayscale" alt="gym" />
-//         <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-[#0a0a0a]/40" />
-//         <div className="relative z-10 text-white/40">
-//           <Link to="/" className="flex items-center gap-2 hover:text-orange-500 uppercase font-black italic text-[10px] tracking-widest transition-all">
-//             {isAr ? <ChevronRight size={16} /> : <ChevronLeft size={16} />} {t("back_to_arena")}
-//           </Link>
-//         </div>
-//         <div className="relative z-10">
-//           <h1 className="text-5xl lg:text-8xl font-black italic tracking-tighter uppercase leading-none text-orange-500">HIGH <br /><span className="text-white">FIT</span></h1>
-//           <div className="h-2 w-24 bg-orange-500 mt-4" />
-//         </div>
-//       </div>
-
-//       {/* قسم الفورم (يمين) */}
-//       <div className="relative flex-1 flex items-center justify-center p-6 lg:p-16" dir={isAr ? "rtl" : "ltr"}>
-//         <div className="w-full max-w-md space-y-12">
-//           <div className={`${isAr ? "text-right" : "text-left"} space-y-4`}>
-//             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20">
-//               <Shield size={14} className="text-orange-500" />
-//               <span className="text-[10px] font-black uppercase tracking-widest text-orange-500">{t("secure_protocol")}</span>
-//             </div>
-//             <h2 className="text-3xl lg:text-4xl font-black italic uppercase">
-//               {step === "phone" ? (isAr ? "سجل بياناتك" : "Register Details") : t("verify_identity")}
-//             </h2>
-//           </div>
-
-//           <div className="space-y-6">
-//             {step === "phone" ? (
-//               <form onSubmit={handleSendOTP} className="space-y-4">
-                
-//                 {/* حقل الاسم الجديد */}
-//                 <div className="flex items-center gap-3 bg-white/5 border border-white/10 p-5 rounded-xl focus-within:border-orange-500 transition-all">
-//                   <UserIcon size={20} className="text-white/20" />
-//                   <input
-//                     type="text"
-//                     value={username}
-//                     onChange={(e) => setUsername(e.target.value)}
-//                     placeholder={isAr ? "الاسم الكامل" : "Full Name"}
-//                     className="bg-transparent outline-none flex-1 text-lg font-bold text-white placeholder:text-white/20"
-//                     required
-//                   />
-//                 </div>
-
-//                 {/* حقل رقم الهاتف */}
-//                 <div className="flex items-center gap-3 bg-white/5 border border-white/10 p-5 rounded-xl focus-within:border-orange-500 transition-all" dir="ltr">
-//                   <Phone size={20} className="text-white/20" />
-//                   <input
-//                     type="tel"
-//                     autoFocus
-//                     value={phone}
-//                     onChange={(e) => setPhone(e.target.value)}
-//                     placeholder="07XXXXXXXX"
-//                     className="bg-transparent outline-none flex-1 text-xl font-bold tracking-[0.2em] text-white placeholder:text-white/20"
-//                     required
-//                   />
-//                 </div>
-
-//                 <button
-//                   type="submit"
-//                   disabled={phone.length < 9 || !username.trim() || isLoading}
-//                   className="w-full bg-orange-500 py-5 rounded-xl font-black italic uppercase tracking-widest text-white hover:bg-orange-600 transition-all shadow-[0_0_30px_rgba(249,115,22,0.2)] disabled:opacity-40 active:scale-95"
-//                 >
-//                   {isLoading ? t("initializing") : t("request_code")}
-//                 </button>
-//               </form>
-//             ) : (
-//               /* قسم الـ OTP يبقى كما هو */
-//               <div className="space-y-6">
-//                 <div className="flex justify-center gap-3" dir="ltr">
-//                   {otp.map((digit, i) => (
-//                     <input key={i} ref={(el) => (otpRefs.current[i] = el)} type="text" inputMode="numeric" maxLength={1} value={digit} onChange={(e) => handleOtpChange(i, e.target.value)} onKeyDown={(e) => { if (e.key === "Backspace" && !otp[i] && i > 0) otpRefs.current[i - 1].focus(); }} className="h-14 w-12 rounded-xl border border-white/10 bg-white/5 text-center text-2xl font-black text-orange-500 outline-none focus:border-orange-500 transition-all shadow-lg" />
-//                   ))}
-//                 </div>
-//                 <button onClick={() => verifyOTPCode(otp.join(""))} disabled={isLoading || otp.join("").length < 4} className="w-full bg-white text-black py-5 rounded-xl font-black italic uppercase tracking-widest hover:bg-orange-500 hover:text-white transition-all active:scale-95 disabled:opacity-50">
-//                   {isLoading ? t("verifying") : t("confirm_enter")}
-//                 </button>
-//                 <button onClick={() => { setStep("phone"); setOtp(["", "", "", ""]); }} className="w-full text-[10px] font-bold text-white/20 uppercase hover:text-orange-500 transition-colors">
-//                   {t("different_number")}
-//                 </button>
-//               </div>
-//             )}
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-
 import React, { useState, useRef } from "react";
-import { Shield, ChevronLeft, ChevronRight, User as UserIcon, Phone } from "lucide-react";
+import {
+  Shield,
+  ChevronLeft,
+  ChevronRight,
+  User as UserIcon,
+  Phone,
+} from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useCart } from "../context/CartContext";
@@ -392,7 +15,7 @@ export default function LoginPage() {
   const { t, i18n } = useTranslation();
   const [step, setStep] = useState("phone");
   const [phone, setPhone] = useState("");
-  const [username, setUsername] = useState(""); 
+  const [username, setUsername] = useState("");
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -415,7 +38,10 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const serverPhone = formatPhoneForServer(phone);
-      await axios.post(`${API_URL}/login`, { phone: serverPhone, username: username.trim() });
+      await axios.post(`${API_URL}/login`, {
+        phone: serverPhone,
+        username: username.trim(),
+      });
       setStep("otp");
     } catch (error) {
       alert(error.response?.data?.msg || t("send_failed"));
@@ -429,7 +55,10 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const serverPhone = formatPhoneForServer(phone);
-      const response = await axios.post(`${API_URL}/verify-otp`, { phone: serverPhone, otp: otpString });
+      const response = await axios.post(`${API_URL}/verify-otp`, {
+        phone: serverPhone,
+        otp: otpString,
+      });
 
       if (response.status === 200) {
         sessionStorage.setItem("token", response.data.token);
@@ -459,27 +88,49 @@ export default function LoginPage() {
   return (
     <div className="relative flex flex-col lg:flex-row min-h-screen bg-[#0a0a0a] text-white overflow-hidden">
       <div className="relative w-full lg:w-1/2 h-[35vh] lg:h-screen p-8 lg:p-16 flex flex-col justify-between border-r border-white/5">
-        <img src="https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=2070" className="absolute inset-0 w-full h-full object-cover opacity-40 grayscale" alt="gym" />
+        <img
+          src="https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=2070"
+          className="absolute inset-0 w-full h-full object-cover opacity-40 grayscale"
+          alt="gym"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-[#0a0a0a]/40" />
         <div className="relative z-10 text-white/40">
-          <Link to="/" className="flex items-center gap-2 hover:text-orange-500 uppercase font-black italic text-[10px] tracking-widest transition-all">
-            {isAr ? <ChevronRight size={16} /> : <ChevronLeft size={16} />} {t("back_to_arena")}
+          <Link
+            to="/"
+            className="flex items-center gap-2 hover:text-orange-500 uppercase font-black italic text-[10px] tracking-widest transition-all"
+          >
+            {isAr ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}{" "}
+            {t("back_to_arena")}
           </Link>
         </div>
         <div className="relative z-10">
-          <h1 className="text-5xl lg:text-8xl font-black italic tracking-tighter uppercase leading-none text-orange-500">HIGH <br /><span className="text-white">FIT</span></h1>
+          <h1 className="text-5xl lg:text-8xl font-black italic tracking-tighter uppercase leading-none text-orange-500">
+            HIGH <br />
+            <span className="text-white">FIT</span>
+          </h1>
           <div className="h-2 w-24 bg-orange-500 mt-4" />
         </div>
       </div>
 
-      <div className="relative flex-1 flex items-center justify-center p-6 lg:p-16" dir={isAr ? "rtl" : "ltr"}>
+      <div
+        className="relative flex-1 flex items-center justify-center p-6 lg:p-16"
+        dir={isAr ? "rtl" : "ltr"}
+      >
         <div className="w-full max-w-md space-y-12">
           <div className={`${isAr ? "text-right" : "text-left"} space-y-4`}>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20">
               <Shield size={14} className="text-orange-500" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-orange-500">{t("secure_protocol")}</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-orange-500">
+                {t("secure_protocol")}
+              </span>
             </div>
-            <h2 className="text-3xl lg:text-4xl font-black italic uppercase">{step === "phone" ? (isAr ? "تسجيل الدخول" : "Login") : t("verify_identity")}</h2>
+            <h2 className="text-3xl lg:text-4xl font-black italic uppercase">
+              {step === "phone"
+                ? isAr
+                  ? "تسجيل الدخول"
+                  : "Login"
+                : t("verify_identity")}
+            </h2>
           </div>
 
           <div className="space-y-6">
@@ -487,13 +138,34 @@ export default function LoginPage() {
               <form onSubmit={handleSendOTP} className="space-y-4">
                 <div className="flex items-center gap-3 bg-white/5 border border-white/10 p-5 rounded-xl focus-within:border-orange-500 transition-all">
                   <UserIcon size={20} className="text-white/20" />
-                  <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder={isAr ? "الاسم الكامل" : "Full Name"} className="bg-transparent outline-none flex-1 text-lg font-bold text-white" required />
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder={isAr ? "الاسم الكامل" : "Full Name"}
+                    className="bg-transparent outline-none flex-1 text-lg font-bold text-white"
+                    required
+                  />
                 </div>
-                <div className="flex items-center gap-3 bg-white/5 border border-white/10 p-5 rounded-xl focus-within:border-orange-500 transition-all" dir="ltr">
+                <div
+                  className="flex items-center gap-3 bg-white/5 border border-white/10 p-5 rounded-xl focus-within:border-orange-500 transition-all"
+                  dir="ltr"
+                >
                   <Phone size={20} className="text-white/20" />
-                  <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="07XXXXXXXX" className="bg-transparent outline-none flex-1 text-xl font-bold tracking-[0.2em] text-white" required />
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="07XXXXXXXX"
+                    className="bg-transparent outline-none flex-1 text-xl font-bold tracking-[0.2em] text-white"
+                    required
+                  />
                 </div>
-                <button type="submit" disabled={phone.length < 9 || !username.trim() || isLoading} className="w-full bg-orange-500 py-5 rounded-xl font-black italic uppercase tracking-widest text-white hover:bg-orange-600 transition-all shadow-[0_0_30px_rgba(249,115,22,0.2)] disabled:opacity-40 active:scale-95">
+                <button
+                  type="submit"
+                  disabled={phone.length < 9 || !username.trim() || isLoading}
+                  className="w-full bg-orange-500 py-5 rounded-xl font-black italic uppercase tracking-widest text-white hover:bg-orange-600 transition-all shadow-[0_0_30px_rgba(249,115,22,0.2)] disabled:opacity-40 active:scale-95"
+                >
                   {isLoading ? t("initializing") : t("request_code")}
                 </button>
               </form>
@@ -501,13 +173,36 @@ export default function LoginPage() {
               <div className="space-y-6">
                 <div className="flex justify-center gap-3" dir="ltr">
                   {otp.map((digit, i) => (
-                    <input key={i} ref={(el) => (otpRefs.current[i] = el)} type="text" inputMode="numeric" maxLength={1} value={digit} onChange={(e) => handleOtpChange(i, e.target.value)} onKeyDown={(e) => { if (e.key === "Backspace" && !otp[i] && i > 0) otpRefs.current[i - 1].focus(); }} className="h-14 w-12 rounded-xl border border-white/10 bg-white/5 text-center text-2xl font-black text-orange-500 outline-none focus:border-orange-500 transition-all shadow-lg" />
+                    <input
+                      key={i}
+                      ref={(el) => (otpRefs.current[i] = el)}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleOtpChange(i, e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Backspace" && !otp[i] && i > 0)
+                          otpRefs.current[i - 1].focus();
+                      }}
+                      className="h-14 w-12 rounded-xl border border-white/10 bg-white/5 text-center text-2xl font-black text-orange-500 outline-none focus:border-orange-500 transition-all shadow-lg"
+                    />
                   ))}
                 </div>
-                <button onClick={() => verifyOTPCode(otp.join(""))} disabled={isLoading || otp.join("").length < 4} className="w-full bg-white text-black py-5 rounded-xl font-black italic uppercase tracking-widest hover:bg-orange-500 hover:text-white transition-all active:scale-95 disabled:opacity-50">
+                <button
+                  onClick={() => verifyOTPCode(otp.join(""))}
+                  disabled={isLoading || otp.join("").length < 4}
+                  className="w-full bg-white text-black py-5 rounded-xl font-black italic uppercase tracking-widest hover:bg-orange-500 hover:text-white transition-all active:scale-95 disabled:opacity-50"
+                >
                   {isLoading ? t("verifying") : t("confirm_enter")}
                 </button>
-                <button onClick={() => { setStep("phone"); setOtp(["", "", "", ""]); }} className="w-full text-[10px] font-bold text-white/20 uppercase hover:text-orange-500 transition-colors">
+                <button
+                  onClick={() => {
+                    setStep("phone");
+                    setOtp(["", "", "", ""]);
+                  }}
+                  className="w-full text-[10px] font-bold text-white/20 uppercase hover:text-orange-500 transition-colors"
+                >
                   {t("different_number")}
                 </button>
               </div>
