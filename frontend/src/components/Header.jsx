@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
@@ -67,6 +69,8 @@ function Header() {
       case "admin":
         return [
           { to: "/admin/users", label: "USERS", icon: ShieldCheck },
+          { to: "/plans", label: "plans", icon: ClipboardList },
+          { to: "/templates", label: "templates", icon: ClipboardList },
           {
             to: "/admin/subscriptions",
             label: "subscriptions",
