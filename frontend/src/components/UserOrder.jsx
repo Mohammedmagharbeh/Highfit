@@ -35,7 +35,7 @@ const UserOrder = () => {
   const fetchMeals = async () => {
     try {
       const res = await axios.get(
-        `${import.meta.env.deploy ? "api" : import.meta.env.VITE_BASE_URL}/meals`,
+        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/meals`,
       );
       setMeals(res.data);
     } catch (err) {

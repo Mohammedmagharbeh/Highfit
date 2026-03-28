@@ -45,7 +45,7 @@ export default function AdminJobs() {
   const fetchJobs = async () => {
     try {
       const res = await axios.get(
-        `${import.meta.env.deploy ? "api" : import.meta.env.VITE_BASE_URL}/jobs`,
+        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/jobs`,
       );
       setJobs(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
@@ -59,7 +59,7 @@ export default function AdminJobs() {
     setApplications([]);
     try {
       const res = await axios.get(
-        `${import.meta.env.deploy ? "api" : import.meta.env.VITE_BASE_URL}/jobs/applications/${jobId}`,
+        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/jobs/applications/${jobId}`,
       );
       setApplications(res.data);
       if (res.data.length > 0) {
@@ -86,7 +86,7 @@ export default function AdminJobs() {
     );
     try {
       await axios.post(
-        `${import.meta.env.deploy ? "api" : import.meta.env.VITE_BASE_URL}/jobs`,
+        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/jobs`,
         form,
       );
       toast.success(
@@ -141,7 +141,7 @@ export default function AdminJobs() {
   const executeDelete = async (id) => {
     try {
       await axios.delete(
-        `${import.meta.env.deploy ? "api" : import.meta.env.VITE_BASE_URL}/jobs/${id}`,
+        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/jobs/${id}`,
       );
       toast.success(isAr ? "تم الحذف بنجاح" : "Job deleted");
       fetchJobs();

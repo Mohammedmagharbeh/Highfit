@@ -32,7 +32,7 @@ export const CartProvider = ({ children }) => {
     try {
       setLoading(true);
       const res = await fetch(
-        `${import.meta.env.deploy ? "api" : import.meta.env.VITE_BASE_URL}/cart/${user._id}`,
+        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/cart/${user._id}`,
       );
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
@@ -59,7 +59,7 @@ export const CartProvider = ({ children }) => {
 
     try {
       const res = await fetch(
-        `${import.meta.env.deploy ? "api" : import.meta.env.VITE_BASE_URL}/cart/add`,
+        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/cart/add`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -85,7 +85,7 @@ export const CartProvider = ({ children }) => {
 
     try {
       const res = await fetch(
-        `${import.meta.env.deploy ? "api" : import.meta.env.VITE_BASE_URL}/cart/remove`,
+        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/cart/remove`,
         {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
@@ -106,7 +106,7 @@ export const CartProvider = ({ children }) => {
 
     try {
       await fetch(
-        `${import.meta.env.deploy ? "api" : import.meta.env.VITE_BASE_URL}/cart/clear/${user._id}`,
+        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/cart/clear/${user._id}`,
         {
           method: "DELETE",
         },

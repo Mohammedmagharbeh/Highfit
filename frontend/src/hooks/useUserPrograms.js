@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-const API_URL = `${import.meta.env.deploy ? "api" : import.meta.env.VITE_BASE_URL}/user-programs`;
+const API_URL = `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/user-programs`;
 
 export const useUserPrograms = () => {
   const [data, setData] = useState({});
