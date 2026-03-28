@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import Cookies from "js-cookie";
 
 const API_URL = `${import.meta.env.VITE_BASE_URL}/user-programs`;
 
@@ -12,8 +13,8 @@ export const useUserPrograms = () => {
   let initialRole = "user";
   let initialUserId = "";
 
-  const staffUserStr = sessionStorage.getItem("staffUser");
-  const regularUserStr = sessionStorage.getItem("user");
+  const staffUserStr = Cookies.get("staffUser");
+  const regularUserStr = Cookies.get("user");
 
   if (staffUserStr) {
     const staffUser = JSON.parse(staffUserStr);

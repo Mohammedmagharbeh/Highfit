@@ -22,6 +22,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { io } from "socket.io-client";
 import { useTranslation } from "react-i18next";
 import notificationSound from "../assets/newOrder.mp3";
+import Cookies from "js-cookie";
 
 const socket = io(import.meta.env.VITE_SOCKET_URL);
 
@@ -52,7 +53,7 @@ const ChefDashboard = () => {
   });
 
   const config = {
-    headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
+    headers: { Authorization: `Bearer ${Cookies.get("token")}` },
   };
 
   const closeDrawer = () => {

@@ -43,17 +43,18 @@ import { Navigate } from "react-router-dom";
 import { useUser } from "./context/userContext"; 
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
+import Cookies from "js-cookie";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { isAuthenticated, user: contextUser, loading } = useUser();
   const { t } = useTranslation();
 
   // 1. جلب بيانات الموظف من السشن (Staff System)
-  const staffToken = sessionStorage.getItem("staffToken");
-  const staffUser = sessionStorage.getItem("staffUser") ? JSON.parse(sessionStorage.getItem("staffUser")) : null;
+  const staffToken = Cookies.get("staffToken");
+  const staffUser = Cookies.get("staffUser") ? JSON.parse(Cookies.get("staffUser")) : null;
 
   // 2. جلب بيانات المشترك العادي (User System)
-  const userToken = localStorage.getItem("token") || sessionStorage.getItem("token");
+  const userToken = localStorage.getItem("token") || Cookies.get("token");
 
   if (loading) {
     return (

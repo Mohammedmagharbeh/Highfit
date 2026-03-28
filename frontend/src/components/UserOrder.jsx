@@ -15,6 +15,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useTranslation } from "react-i18next";
+import Cookies from "js-cookie";
 
 const UserOrder = () => {
   const [meals, setMeals] = useState([]);
@@ -43,8 +44,8 @@ const UserOrder = () => {
 
   const handleAddToCartClick = async () => {
     // التعديل هنا: نفحص اليوزر العادي أو الموظف
-    const sessionUser = sessionStorage.getItem("user");
-    const staffUser = sessionStorage.getItem("staffUser");
+    const sessionUser = Cookies.get("user");
+    const staffUser = Cookies.get("staffUser");
 
     // إذا لم يجد لا هذا ولا ذاك، اطلب تسجيل الدخول
     if (!sessionUser && !staffUser) {

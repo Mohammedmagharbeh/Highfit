@@ -10,6 +10,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useCart } from "../context/CartContext";
 import { useTranslation } from "react-i18next";
+import Cookies from "js-cookie";
 
 export default function LoginPage() {
   const { t, i18n } = useTranslation();
@@ -99,8 +100,8 @@ export default function LoginPage() {
       });
 
       if (response.status === 200) {
-        sessionStorage.setItem("token", response.data.token);
-        sessionStorage.setItem("user", JSON.stringify(response.data.user));
+        Cookies.set("token", response.data.token, { expires: 7 });
+        Cookies.set("user", JSON.stringify(response.data.user), { expires: 7 });
         if (fetchCart) await fetchCart();
         navigate("/plans");
       }

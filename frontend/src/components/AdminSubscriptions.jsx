@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 import toast, { Toaster } from "react-hot-toast";
+import Cookies from "js-cookie";
 
 export default function AdminSubscriptions() {
   const { t, i18n } = useTranslation();
@@ -82,7 +83,7 @@ export default function AdminSubscriptions() {
   const fetchData = async () => {
     try {
       const config = {
-        headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
+        headers: { Authorization: `Bearer ${Cookies.get("token")}` },
       };
       const [resSubs, resOrders] = await Promise.all([
         axios.get(`api/subscriptions`, config),
@@ -112,7 +113,7 @@ export default function AdminSubscriptions() {
     );
     try {
       const config = {
-        headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
+        headers: { Authorization: `Bearer ${Cookies.get("token")}` },
       };
       if (editingId) {
         await axios.put(`api/subscriptions/${editingId}`, newSub, config);
@@ -136,7 +137,7 @@ export default function AdminSubscriptions() {
         {},
         {
           headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+            Authorization: `Bearer ${Cookies.get("token")}`,
           },
         },
       );
@@ -163,7 +164,7 @@ export default function AdminSubscriptions() {
                 try {
                   await axios.delete(`api/subscriptions/${id}`, {
                     headers: {
-                      Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+                      Authorization: `Bearer ${Cookies.get("token")}`,
                     },
                   });
                   toast.success(t("success"), { id: tid });

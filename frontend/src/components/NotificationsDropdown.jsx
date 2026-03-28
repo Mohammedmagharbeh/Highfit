@@ -4,6 +4,7 @@ import axios from "axios";
 import { io } from "socket.io-client";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 const socket = io(import.meta.env.VITE_SOCKET_URL);
 
@@ -13,10 +14,10 @@ const NotificationsDropdown = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
 
-  const staffUserStr = sessionStorage.getItem("staffUser");
-  const regularUserStr = sessionStorage.getItem("user");
+  const staffUserStr = Cookies.get("staffUser");
+  const regularUserStr = Cookies.get("user");
   const token =
-    sessionStorage.getItem("token") || sessionStorage.getItem("staffToken");
+    Cookies.get("token") || Cookies.get("staffToken");
 
   let currentUser = null;
   if (staffUserStr) currentUser = JSON.parse(staffUserStr);

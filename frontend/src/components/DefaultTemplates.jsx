@@ -5,10 +5,11 @@ import NutritionMealCard from "./TrainingDashboard/components/NutritionMealCard"
 import { useEditablePlans } from "../hooks/useEditablePlans";
 import { useEditableNutrition } from "../hooks/useEditableNutrition";
 import { Edit2, Save, PlusCircle, Trash2 } from "lucide-react";
+import Cookies from "js-cookie";
 
 const DefaultTemplates = () => {
-  const staffUserStr = sessionStorage.getItem("staffUser");
-  const regularUserStr = sessionStorage.getItem("user");
+  const staffUserStr = Cookies.get("staffUser");
+  const regularUserStr = Cookies.get("user");
   let role = "user";
 
   if (staffUserStr) {

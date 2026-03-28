@@ -23,6 +23,7 @@ import {
   Dumbbell,
 } from "lucide-react";
 import Loading from "../../common/Loading";
+import Cookies from "js-cookie";
 
 const AdminUsersPage = () => {
   const { t, i18n } = useTranslation();
@@ -43,7 +44,7 @@ const AdminUsersPage = () => {
 
   // دالة موحدة لجلب التوكن المتاح (أدمن أو موظف)
   const getAuthToken = () =>
-    sessionStorage.getItem("token") || sessionStorage.getItem("staffToken");
+    Cookies.get("token") || Cookies.get("staffToken");
 
   const fetchUsers = async () => {
     const token = getAuthToken();

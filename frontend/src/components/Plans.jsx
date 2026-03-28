@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 import toast, { Toaster } from "react-hot-toast";
+import Cookies from "js-cookie";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -110,7 +111,7 @@ const SubscriptionModal = ({ sub, onClose, i18n }) => {
 
   useEffect(() => {
     const getUserData = async () => {
-      const token = sessionStorage.getItem("token");
+      const token = Cookies.get("token");
       if (!token) {
         toast.error(t("modal.loginRequired") || "Login Required");
         onClose();
@@ -157,7 +158,7 @@ const SubscriptionModal = ({ sub, onClose, i18n }) => {
     setIsSubmitting(true);
 
     try {
-      const token = sessionStorage.getItem("token");
+      const token = Cookies.get("token");
       const payload = {
         subscriptionId: sub._id,
         customerDetails: {

@@ -14,6 +14,7 @@ import {
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../ui/LanguageSwitcher";
 import NotificationsDropdown from "./NotificationsDropdown";
+import Cookies from "js-cookie";
 
 // استيراد الشعار
 import logo from "../assets/Asset 1 (1).png";
@@ -23,18 +24,18 @@ function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const [isLoggedIn, setIsLoggedIn] = useState(
-    !!sessionStorage.getItem("token") || !!sessionStorage.getItem("staffToken"),
+    !!Cookies.get("token") || !!Cookies.get("staffToken"),
   );
 
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
 
-  const staffUser = sessionStorage.getItem("staffUser")
-    ? JSON.parse(sessionStorage.getItem("staffUser"))
+  const staffUser = Cookies.get("staffUser")
+    ? JSON.parse(Cookies.get("staffUser"))
     : null;
-  const regularUser = sessionStorage.getItem("user")
-    ? JSON.parse(sessionStorage.getItem("user"))
+  const regularUser = Cookies.get("user")
+    ? JSON.parse(Cookies.get("user"))
     : null;
 
   const currentUser = staffUser || regularUser;
@@ -45,17 +46,17 @@ function Header() {
 
   useEffect(() => {
     setIsLoggedIn(
-      !!sessionStorage.getItem("token") ||
-        !!sessionStorage.getItem("staffToken"),
+      !!Cookies.get("token") ||
+        !!Cookies.get("staffToken"),
     );
     setIsMenuOpen(false);
   }, [location]);
 
   const handleLogout = () => {
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("staffToken");
-    sessionStorage.removeItem("staffUser");
-    sessionStorage.removeItem("user");
+    Cookies.remove("token");
+    Cookies.remove("staffToken");
+    Cookies.remove("staffUser");
+    Cookies.remove("user");
     localStorage.removeItem("token");
 
     setIsLoggedIn(false);

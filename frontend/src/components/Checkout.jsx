@@ -16,6 +16,7 @@ import {
   ClipboardList,
   ChevronDown,
 } from "lucide-react";
+import Cookies from "js-cookie";
 
 const Checkout = () => {
   const { cart, total, clearCart } = useCart();
@@ -28,11 +29,10 @@ const Checkout = () => {
   const [selectedArea, setSelectedArea] = useState(null);
 
   // --- التعديل: قراءة البيانات من حساب اليوزر أو حساب الموظف (Staff) ---
-  const sessionData = JSON.parse(
-    sessionStorage.getItem("user") || sessionStorage.getItem("staffUser"),
-  );
+  const _userStr = Cookies.get("user") || Cookies.get("staffUser");
+  const sessionData = _userStr ? JSON.parse(_userStr) : null;
   const token =
-    sessionStorage.getItem("token") || sessionStorage.getItem("staffToken");
+    Cookies.get("token") || Cookies.get("staffToken");
 
   const [userName, setUserName] = useState(
     sessionData?.name || sessionData?.username || "",

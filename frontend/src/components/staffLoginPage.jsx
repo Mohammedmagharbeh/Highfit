@@ -12,6 +12,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 import toast, { Toaster } from "react-hot-toast";
+import Cookies from "js-cookie";
 
 export default function StaffLoginPage() {
   const { t, i18n } = useTranslation();
@@ -63,8 +64,8 @@ export default function StaffLoginPage() {
           localStorage.removeItem("rememberedStaffUser");
         }
 
-        sessionStorage.setItem("staffToken", response.data.token);
-        sessionStorage.setItem("staffUser", JSON.stringify(response.data.user));
+        Cookies.set("staffToken", response.data.token, { expires: 7 });
+        Cookies.set("staffUser", JSON.stringify(response.data.user), { expires: 7 });
 
         toast.success(t("staff_toast_login_success"), { id: loadingToast });
 

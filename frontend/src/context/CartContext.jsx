@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import toast from "react-hot-toast";
+import Cookies from "js-cookie";
 
 const CartContext = createContext();
 
@@ -12,7 +13,7 @@ export const CartProvider = ({ children }) => {
     try {
       // نفحص اليوزر العادي أولاً، ثم الموظف (staffUser)
       const userData =
-        sessionStorage.getItem("user") || sessionStorage.getItem("staffUser");
+        Cookies.get("user") || Cookies.get("staffUser");
       return userData ? JSON.parse(userData) : null;
     } catch (error) {
       console.error("Error parsing user from session", error);
