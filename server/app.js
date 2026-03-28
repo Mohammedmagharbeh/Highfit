@@ -11,10 +11,18 @@ const app = express();
 
 const server = http.createServer(app);
 
+const corsOrigins = [
+  "https://highfit-1.onrender.com",
+  "http://localhost:5173",
+  "https://highfit.com.jo",
+  "https://www.highfit.com.jo"
+];
+
 const io = new Server(server, {
   cors: {
-    origin: "https://highfit-1.onrender.com, http://localhost:5173",
-    methods: ["GET", "POST"],
+    origin: corsOrigins,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    credentials: true,
   },
 });
 
@@ -22,7 +30,10 @@ app.set("io", io);
 
 connectDB();
 
-app.use(cors());
+app.use(cors({
+  origin: corsOrigins,
+  credentials: true
+}));
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
