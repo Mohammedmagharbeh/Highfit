@@ -25,6 +25,12 @@ export default function StaffLoginPage() {
   const API_URL = import.meta.env.VITE_BASE_URL;
   const isAr = i18n.language === "ar";
 
+  useEffect(() => {
+    if (Cookies.get("staffToken") || Cookies.get("token")) {
+      navigate("/", { replace: true });
+    }
+  }, [navigate]);
+
   // تحميل اسم المستخدم إذا كان محفوظاً مسبقاً
   useEffect(() => {
     const savedUsername = localStorage.getItem("rememberedStaffUser");

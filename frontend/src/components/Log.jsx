@@ -25,6 +25,12 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const otpRefs = useRef([]);
 
+  useEffect(() => {
+    if (Cookies.get("token") || Cookies.get("staffToken")) {
+      navigate("/plans", { replace: true });
+    }
+  }, [navigate]);
+
   const { fetchCart } = useCart();
   const API_URL = import.meta.env.VITE_BASE_URL;
   const isAr = i18n.language === "ar";
@@ -208,7 +214,7 @@ export default function LoginPage() {
                     />
                   </div>
                 )}
-                
+
                 <button
                   type="submit"
                   disabled={
@@ -219,7 +225,9 @@ export default function LoginPage() {
                   }
                   className="w-full bg-orange-500 py-5 rounded-xl font-black italic uppercase tracking-widest text-white hover:bg-orange-600 transition-all shadow-[0_0_30px_rgba(249,115,22,0.2)] disabled:opacity-40 active:scale-95"
                 >
-                  {isLoading || isCheckingPhone ? t("initializing") : t("request_code")}
+                  {isLoading || isCheckingPhone
+                    ? t("initializing")
+                    : t("request_code")}
                 </button>
               </form>
             ) : (
