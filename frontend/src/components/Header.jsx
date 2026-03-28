@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
@@ -89,11 +87,11 @@ function Header() {
         ];
       default: // user
         return [
-          { to: "/", label: "home", icon: Dumbbell },
+          // { to: "/", label: "home", icon: Dumbbell },
           { to: "/plans", label: "plans", icon: ClipboardList },
-          { to: "/order", label: "orders", icon: ShoppingCart },
-          { to: "/cart", label: "cart", icon: ShoppingCart },
-          { to: "/JobsPage", label: "jobs", icon: UserCircle },
+          // { to: "/order", label: "orders", icon: ShoppingCart },
+          // { to: "/cart", label: "cart", icon: ShoppingCart },
+          // { to: "/JobsPage", label: "jobs", icon: UserCircle },
           { to: "/plan", label: "Package", icon: ClipboardList },
         ];
     }

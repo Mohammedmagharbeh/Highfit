@@ -88,13 +88,8 @@ const ChefDashboard = () => {
   const fetchData = async () => {
     try {
       const [resOrders, resMeals] = await Promise.all([
-        axios.get(
-          `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/orders`,
-          config,
-        ),
-        axios.get(
-          `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/meals`,
-        ),
+        axios.get(`${import.meta.env.VITE_BASE_URL}/orders`, config),
+        axios.get(`${import.meta.env.VITE_BASE_URL}/meals`),
       ]);
       setOrders(resOrders.data);
       setMeals(resMeals.data);
@@ -127,7 +122,7 @@ const ChefDashboard = () => {
       }
       const mealNames = incomingOrder.items.map((i) => i.mealName).join(", ");
       await axios.post(
-        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/orders/confirm-order`,
+        `${import.meta.env.VITE_BASE_URL}/orders/confirm-order`,
         {
           phone: incomingOrder.userPhone,
           mealName: mealNames,
@@ -158,14 +153,14 @@ const ChefDashboard = () => {
     try {
       if (isEditing) {
         await axios.put(
-          `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/meals/${editingMealId}`,
+          `${import.meta.env.VITE_BASE_URL}/meals/${editingMealId}`,
           payload,
           config,
         );
         toast.success(isAr ? "تم التحديث ✨" : "Updated ✨");
       } else {
         await axios.post(
-          `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/meals`,
+          `${import.meta.env.VITE_BASE_URL}/meals`,
           payload,
           config,
         );
@@ -418,7 +413,7 @@ const ChefDashboard = () => {
                       if (window.confirm(isAr ? "حذف؟" : "Delete?"))
                         axios
                           .delete(
-                            `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/meals/${meal._id}`,
+                            `${import.meta.env.VITE_BASE_URL}/meals/${meal._id}`,
                             config,
                           )
                           .then(fetchData);

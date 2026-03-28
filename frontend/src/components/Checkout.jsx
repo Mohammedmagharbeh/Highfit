@@ -48,7 +48,7 @@ const Checkout = () => {
       const fetchLocations = async () => {
         try {
           const res = await axios.get(
-            `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/locations/get`,
+            `${import.meta.env.VITE_BASE_URL}/locations/get`,
             { headers: { Authorization: `Bearer ${token}` } },
           );
           setLocations(res.data.locations || []);
@@ -111,7 +111,7 @@ const Checkout = () => {
       };
 
       const response = await axios.post(
-        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/orders`,
+        `${import.meta.env.VITE_BASE_URL}/orders`,
         orderPayload,
         { headers: { Authorization: `Bearer ${token}` } },
       );

@@ -38,9 +38,7 @@ const AdminUsersPage = () => {
     password: "",
   });
 
-  const API_URL = import.meta.env.VITE_deploy
-    ? "api"
-    : import.meta.env.VITE_BASE_URL;
+  const API_URL = import.meta.env.VITE_BASE_URL;
   const isAr = i18n.language === "ar";
 
   // دالة موحدة لجلب التوكن المتاح (أدمن أو موظف)

@@ -48,14 +48,11 @@ export const UserProvider = ({ children }) => {
       if (!token) return null;
 
       try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/me`,
-          {
-            headers: {
-              authorization: `Bearer ${token}`,
-            },
+        const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/me`, {
+          headers: {
+            authorization: `Bearer ${token}`,
           },
-        );
+        });
 
         const normalizedUser = { ...res.data, token };
         setUser(normalizedUser);
@@ -178,7 +175,7 @@ export const UserProvider = ({ children }) => {
 
     try {
       const res = await axios.put(
-        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/update-phone`,
+        `${import.meta.env.VITE_BASE_URL}/update-phone`,
         { newPhone },
         {
           headers: {
@@ -206,9 +203,7 @@ export const UserProvider = ({ children }) => {
 
   const getAllUsers = async () => {
     try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/users`,
-      );
+      const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/users`);
       if (res.status !== 200) throw new Error("Failed to fetch users");
       setAllUsers(res.data);
       return res.data;

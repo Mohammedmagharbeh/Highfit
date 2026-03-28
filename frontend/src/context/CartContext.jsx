@@ -32,7 +32,7 @@ export const CartProvider = ({ children }) => {
     try {
       setLoading(true);
       const res = await fetch(
-        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/cart/${user._id}`,
+        `${import.meta.env.VITE_BASE_URL}/cart/${user._id}`,
       );
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
@@ -58,14 +58,11 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/cart/add`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: user._id, mealId, quantity, notes }),
-        },
-      );
+      const res = await fetch(`${import.meta.env.VITE_BASE_URL}/cart/add`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user._id, mealId, quantity, notes }),
+      });
 
       if (!res.ok) throw new Error("Add to cart failed");
 
@@ -84,14 +81,11 @@ export const CartProvider = ({ children }) => {
     if (!user?._id) return;
 
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/cart/remove`,
-        {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: user._id, mealId }),
-        },
-      );
+      const res = await fetch(`${import.meta.env.VITE_BASE_URL}/cart/remove`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user._id, mealId }),
+      });
       const data = await res.json();
       setCart(data);
       toast.success("تم الحذف من السلة");
@@ -106,7 +100,7 @@ export const CartProvider = ({ children }) => {
 
     try {
       await fetch(
-        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/cart/clear/${user._id}`,
+        `${import.meta.env.VITE_BASE_URL}/cart/clear/${user._id}`,
         {
           method: "DELETE",
         },

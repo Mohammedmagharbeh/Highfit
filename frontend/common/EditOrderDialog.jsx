@@ -49,7 +49,7 @@ export function EditOrderDialog({ name, order, updateOrders }) {
     if (!open) return;
     const fetchAddresses = async () => {
       const res = await fetch(
-        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/locations/get`,
+        `${import.meta.env.VITE_BASE_URL}/locations/get`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -138,7 +138,7 @@ export function EditOrderDialog({ name, order, updateOrders }) {
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/order/${order._id}`,
+        `${import.meta.env.VITE_BASE_URL}/order/${order._id}`,
         {
           method: "PUT",
           headers: {

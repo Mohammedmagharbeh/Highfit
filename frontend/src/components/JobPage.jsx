@@ -47,9 +47,7 @@ export default function JobsPage() {
 
   const fetchJobs = async () => {
     try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/jobs`,
-      );
+      const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/jobs`);
       setJobs(res.data);
     } catch (err) {
       toast.error(t("failed_load_jobs"));
@@ -87,13 +85,9 @@ export default function JobsPage() {
     }
 
     try {
-      await axios.post(
-        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/apply`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        },
-      );
+      await axios.post(`${import.meta.env.VITE_BASE_URL}/apply`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       toast.success(t("application_success"));
       setForm({
         applicantName: "",

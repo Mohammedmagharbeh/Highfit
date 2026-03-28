@@ -29,7 +29,7 @@ const NotificationsDropdown = () => {
     if (!token || !currentUser) return;
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/notifications`,
+        `${import.meta.env.VITE_BASE_URL}/notifications`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -90,7 +90,7 @@ const NotificationsDropdown = () => {
     try {
       if (!token) return;
       await axios.put(
-        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/notifications/${id}/read`,
+        `${import.meta.env.VITE_BASE_URL}/notifications/${id}/read`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -109,7 +109,7 @@ const NotificationsDropdown = () => {
     try {
       if (!token) return;
       await axios.put(
-        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/notifications/read-all`,
+        `${import.meta.env.VITE_BASE_URL}/notifications/read-all`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },

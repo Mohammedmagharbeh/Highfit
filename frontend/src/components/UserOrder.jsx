@@ -34,9 +34,7 @@ const UserOrder = () => {
 
   const fetchMeals = async () => {
     try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/meals`,
-      );
+      const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/meals`);
       setMeals(res.data);
     } catch (err) {
       toast.error(t("error_fetch_menu"));

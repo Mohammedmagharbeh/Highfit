@@ -21,9 +21,7 @@ export default function StaffLoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const API_URL = import.meta.env.VITE_deploy
-    ? "api"
-    : import.meta.env.VITE_BASE_URL;
+  const API_URL = import.meta.env.VITE_BASE_URL;
   const isAr = i18n.language === "ar";
 
   // تحميل اسم المستخدم إذا كان محفوظاً مسبقاً

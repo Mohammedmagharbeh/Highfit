@@ -44,9 +44,7 @@ export default function AdminJobs() {
 
   const fetchJobs = async () => {
     try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/jobs`,
-      );
+      const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/jobs`);
       setJobs(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       toast.error(isAr ? "فشل تحميل الوظائف" : "Failed to load jobs");
@@ -59,7 +57,7 @@ export default function AdminJobs() {
     setApplications([]);
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/jobs/applications/${jobId}`,
+        `${import.meta.env.VITE_BASE_URL}/jobs/applications/${jobId}`,
       );
       setApplications(res.data);
       if (res.data.length > 0) {
@@ -85,10 +83,7 @@ export default function AdminJobs() {
       isAr ? "جاري حفظ الوظيفة..." : "Saving job...",
     );
     try {
-      await axios.post(
-        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/jobs`,
-        form,
-      );
+      await axios.post(`${import.meta.env.VITE_BASE_URL}/jobs`, form);
       toast.success(
         isAr ? "تم إضافة الوظيفة بنجاح" : "Job added successfully",
         { id: loadingToast },
@@ -140,9 +135,7 @@ export default function AdminJobs() {
 
   const executeDelete = async (id) => {
     try {
-      await axios.delete(
-        `${import.meta.env.VITE_deploy ? "api" : import.meta.env.VITE_BASE_URL}/jobs/${id}`,
-      );
+      await axios.delete(`${import.meta.env.VITE_BASE_URL}/jobs/${id}`);
       toast.success(isAr ? "تم الحذف بنجاح" : "Job deleted");
       fetchJobs();
       if (selectedJob === id) setSelectedJob(null);
