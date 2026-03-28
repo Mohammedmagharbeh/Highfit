@@ -49,13 +49,13 @@ export function EditOrderDialog({ name, order, updateOrders }) {
     if (!open) return;
     const fetchAddresses = async () => {
       const res = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/locations/get`,
+        `${import.meta.env.deploy ? "api" : import.meta.env.VITE_BASE_URL}/locations/get`,
         {
           headers: {
             "Content-Type": "application/json",
             authorization: `Bearer ${user.token}`,
           },
-        }
+        },
       );
       const data = await res.json();
       setAddresses(data.locations || []);
@@ -138,7 +138,7 @@ export function EditOrderDialog({ name, order, updateOrders }) {
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/order/${order._id}`,
+        `${import.meta.env.deploy ? "api" : import.meta.env.VITE_BASE_URL}/order/${order._id}`,
         {
           method: "PUT",
           headers: {
@@ -146,7 +146,7 @@ export function EditOrderDialog({ name, order, updateOrders }) {
             authorization: `Bearer ${user.token}`,
           },
           body: JSON.stringify(payload),
-        }
+        },
       );
 
       if (!res.ok) throw new Error("Failed to update order");
@@ -238,7 +238,7 @@ export function EditOrderDialog({ name, order, updateOrders }) {
               value={updatedOrder.address}
               onValueChange={(value) => {
                 const selectedAddress = addresses.find(
-                  (addr) => addr.name === value
+                  (addr) => addr.name === value,
                 );
                 setUpdatedOrder((prev) => ({
                   ...prev,

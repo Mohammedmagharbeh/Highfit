@@ -3,7 +3,7 @@ import axios from "axios";
 import { useTranslation } from "react-i18next";
 import toast, { Toaster } from "react-hot-toast";
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+const BASE_URL = import.meta.env.deploy ? "api" : import.meta.env.VITE_BASE_URL;
 
 const Plans = () => {
   const { t, i18n } = useTranslation();

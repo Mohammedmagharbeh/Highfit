@@ -45,7 +45,9 @@ const ExerciseItem = ({
     formData.append("file", file);
 
     try {
-      const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:5000";
+      const BASE_URL = import.meta.env.deploy
+        ? "api"
+        : import.meta.env.VITE_BASE_URL;
       const { data } = await axios.post(`${BASE_URL}/upload`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });

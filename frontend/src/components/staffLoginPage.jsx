@@ -21,7 +21,9 @@ export default function StaffLoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const API_URL = import.meta.env.VITE_BASE_URL;
+  const API_URL = import.meta.env.deploy
+    ? "api"
+    : import.meta.env.VITE_BASE_URL;
   const isAr = i18n.language === "ar";
 
   // تحميل اسم المستخدم إذا كان محفوظاً مسبقاً
@@ -92,8 +94,6 @@ export default function StaffLoginPage() {
 
   return (
     <div className="relative flex flex-col lg:flex-row min-h-screen bg-[#0a0a0a] text-white overflow-hidden">
-      
-
       {/* القسم الجمالي */}
       <div className="relative w-full lg:w-1/2 h-[30vh] lg:h-screen p-8 lg:p-16 flex flex-col justify-between border-r border-white/5">
         <img

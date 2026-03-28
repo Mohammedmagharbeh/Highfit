@@ -33,7 +33,7 @@ export const UserProvider = ({ children }) => {
         secure: isHttps,
       });
     },
-    [COOKIE_KEY, isHttps]
+    [COOKIE_KEY, isHttps],
   );
   const { t } = useTranslation();
 
@@ -48,11 +48,14 @@ export const UserProvider = ({ children }) => {
       if (!token) return null;
 
       try {
-        const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/me`, {
-          headers: {
-            authorization: `Bearer ${token}`,
+        const res = await axios.get(
+          `${import.meta.env.deploy ? "api" : import.meta.env.VITE_BASE_URL}/me`,
+          {
+            headers: {
+              authorization: `Bearer ${token}`,
+            },
           },
-        });
+        );
 
         const normalizedUser = { ...res.data, token };
         setUser(normalizedUser);
@@ -64,7 +67,7 @@ export const UserProvider = ({ children }) => {
         return null;
       }
     },
-    [logout, persistUser]
+    [logout, persistUser],
   );
 
   // ✅ Load user from cookies on mount and revalidate with the server
@@ -132,7 +135,7 @@ export const UserProvider = ({ children }) => {
         }
 
         return Promise.reject(error);
-      }
+      },
     );
 
     const originalFetch = window.fetch;
@@ -175,14 +178,14 @@ export const UserProvider = ({ children }) => {
 
     try {
       const res = await axios.put(
-        `${import.meta.env.VITE_BASE_URL}/update-phone`,
+        `${import.meta.env.deploy ? "api" : import.meta.env.VITE_BASE_URL}/update-phone`,
         { newPhone },
         {
           headers: {
             "Content-Type": "application/json",
             authorization: `Bearer ${user.token}`,
           },
-        }
+        },
       );
 
       if (res.data.msg === "OTP sent to your phone") {
@@ -203,7 +206,9 @@ export const UserProvider = ({ children }) => {
 
   const getAllUsers = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/users`);
+      const res = await axios.get(
+        `${import.meta.env.deploy ? "api" : import.meta.env.VITE_BASE_URL}/users`,
+      );
       if (res.status !== 200) throw new Error("Failed to fetch users");
       setAllUsers(res.data);
       return res.data;

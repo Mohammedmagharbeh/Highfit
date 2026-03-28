@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-const API_URL = `${import.meta.env.VITE_BASE_URL}/plans`;
+const API_URL = `${import.meta.env.deploy ? "api" : import.meta.env.VITE_BASE_URL}/plans`;
 export const useEditablePlans = () => {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
@@ -184,7 +184,7 @@ export const useEditablePlans = () => {
   const deleteTemplate = async (planId) => {
     try {
       await axios.delete(`${API_URL}/${planId}`);
-      setData(prev => {
+      setData((prev) => {
         const newData = { ...prev };
         delete newData[planId];
         return newData;

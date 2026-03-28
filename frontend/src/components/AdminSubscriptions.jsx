@@ -35,7 +35,6 @@ export default function AdminSubscriptions() {
     ],
   });
 
-  const BASE_URL = import.meta.env.VITE_BASE_URL;
   const currentLang = i18n.language.startsWith("ar") ? "ar" : "en";
 
   const calculateRemainingDays = (durationObj, createdAt) => {
@@ -86,8 +85,8 @@ export default function AdminSubscriptions() {
         headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
       };
       const [resSubs, resOrders] = await Promise.all([
-        axios.get(`${BASE_URL}/subscriptions`, config),
-        axios.get(`${BASE_URL}/sub-orders/admin/all`, config),
+        axios.get(`api/subscriptions`, config),
+        axios.get(`api/sub-orders/admin/all`, config),
       ]);
       const allOrders = resOrders.data.sort(
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
@@ -116,14 +115,10 @@ export default function AdminSubscriptions() {
         headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
       };
       if (editingId) {
-        await axios.put(
-          `${BASE_URL}/subscriptions/${editingId}`,
-          newSub,
-          config,
-        );
+        await axios.put(`api/subscriptions/${editingId}`, newSub, config);
         toast.success(t("success"), { id: loadingToast });
       } else {
-        await axios.post(`${BASE_URL}/subscriptions/add`, newSub, config);
+        await axios.post(`api/subscriptions/add`, newSub, config);
         toast.success(t("success"), { id: loadingToast });
       }
       resetForm();
@@ -137,7 +132,7 @@ export default function AdminSubscriptions() {
     const loadingToast = toast.loading(t("processing_order"));
     try {
       await axios.patch(
-        `${BASE_URL}/sub-orders/${orderId}/accept`,
+        `api/sub-orders/${orderId}/accept`,
         {},
         {
           headers: {
@@ -166,7 +161,7 @@ export default function AdminSubscriptions() {
                 toast.dismiss(t_toast.id);
                 const tid = toast.loading(t("processing_order"));
                 try {
-                  await axios.delete(`${BASE_URL}/subscriptions/${id}`, {
+                  await axios.delete(`api/subscriptions/${id}`, {
                     headers: {
                       Authorization: `Bearer ${sessionStorage.getItem("token")}`,
                     },
