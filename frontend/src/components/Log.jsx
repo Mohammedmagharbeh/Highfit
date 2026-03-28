@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Shield,
   ChevronLeft,
@@ -18,6 +18,9 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showUsername, setShowUsername] = useState(false);
+  const [phoneExists, setPhoneExists] = useState(false);
+  const [isCheckingPhone, setIsCheckingPhone] = useState(false);
   const navigate = useNavigate();
   const otpRefs = useRef([]);
 
@@ -31,16 +34,51 @@ export default function LoginPage() {
     return clean.startsWith("962") ? clean : "962" + clean;
   };
 
+  useEffect(() => {
+    const checkPhone = async () => {
+      const cleanPhone = phone.replace(/\s/g, "");
+      if (cleanPhone.length >= 9) {
+        setIsCheckingPhone(true);
+        try {
+          const serverPhone = formatPhoneForServer(cleanPhone);
+          const res = await axios.post(`${API_URL}/check-phone`, {
+            phone: serverPhone,
+          });
+          if (res.data.exists) {
+            setPhoneExists(true);
+            setShowUsername(false);
+          } else {
+            setPhoneExists(false);
+            setShowUsername(true);
+          }
+        } catch (error) {
+          console.error(error);
+          setPhoneExists(false);
+          setShowUsername(true);
+        } finally {
+          setIsCheckingPhone(false);
+        }
+      } else {
+        setPhoneExists(false);
+        setShowUsername(false);
+      }
+    };
+
+    const timeoutId = setTimeout(checkPhone, 500);
+    return () => clearTimeout(timeoutId);
+  }, [phone, API_URL]);
+
   const handleSendOTP = async (e) => {
     if (e) e.preventDefault();
-    if (phone.length < 9 || !username.trim() || isLoading) return;
+    if (phone.length < 9 || isLoading || isCheckingPhone) return;
+    if (!phoneExists && !username.trim()) return;
 
     setIsLoading(true);
     try {
       const serverPhone = formatPhoneForServer(phone);
       await axios.post(`${API_URL}/login`, {
         phone: serverPhone,
-        username: username.trim(),
+        username: phoneExists ? "" : username.trim(),
       });
       setStep("otp");
     } catch (error) {
@@ -136,19 +174,8 @@ export default function LoginPage() {
           <div className="space-y-6">
             {step === "phone" ? (
               <form onSubmit={handleSendOTP} className="space-y-4">
-                <div className="flex items-center gap-3 bg-white/5 border border-white/10 p-5 rounded-xl focus-within:border-orange-500 transition-all">
-                  <UserIcon size={20} className="text-white/20" />
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder={isAr ? "الاسم الكامل" : "Full Name"}
-                    className="bg-transparent outline-none flex-1 text-lg font-bold text-white"
-                    required
-                  />
-                </div>
                 <div
-                  className="flex items-center gap-3 bg-white/5 border border-white/10 p-5 rounded-xl focus-within:border-orange-500 transition-all"
+                  className={`flex items-center gap-3 bg-white/5 border ${isCheckingPhone ? "border-orange-500/50" : "border-white/10"} p-5 rounded-xl focus-within:border-orange-500 transition-all relative`}
                   dir="ltr"
                 >
                   <Phone size={20} className="text-white/20" />
@@ -160,13 +187,38 @@ export default function LoginPage() {
                     className="bg-transparent outline-none flex-1 text-xl font-bold tracking-[0.2em] text-white"
                     required
                   />
+                  {isCheckingPhone && (
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                      <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
                 </div>
+
+                {showUsername && (
+                  <div className="flex items-center gap-3 bg-white/5 border border-white/10 p-5 rounded-xl focus-within:border-orange-500 transition-all animate-[fadeIn_0.3s_ease-out]">
+                    <UserIcon size={20} className="text-white/20" />
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder={isAr ? "الاسم الكامل" : "Full Name"}
+                      className="bg-transparent outline-none flex-1 text-lg font-bold text-white"
+                      required={showUsername}
+                    />
+                  </div>
+                )}
+                
                 <button
                   type="submit"
-                  disabled={phone.length < 9 || !username.trim() || isLoading}
+                  disabled={
+                    phone.replace(/\s/g, "").length < 9 ||
+                    isCheckingPhone ||
+                    (!phoneExists && !username.trim()) ||
+                    isLoading
+                  }
                   className="w-full bg-orange-500 py-5 rounded-xl font-black italic uppercase tracking-widest text-white hover:bg-orange-600 transition-all shadow-[0_0_30px_rgba(249,115,22,0.2)] disabled:opacity-40 active:scale-95"
                 >
-                  {isLoading ? t("initializing") : t("request_code")}
+                  {isLoading || isCheckingPhone ? t("initializing") : t("request_code")}
                 </button>
               </form>
             ) : (

@@ -92,7 +92,7 @@ function Header() {
           // { to: "/order", label: "orders", icon: ShoppingCart },
           // { to: "/cart", label: "cart", icon: ShoppingCart },
           // { to: "/JobsPage", label: "jobs", icon: UserCircle },
-          { to: "/plan", label: "Package", icon: ClipboardList },
+          // { to: "/plan", label: "Package", icon: ClipboardList },
         ];
     }
   };

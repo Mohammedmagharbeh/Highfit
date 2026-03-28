@@ -18,6 +18,19 @@ routes.get("/me", validateJWT, async (req, res) => {
 });
 
 // طلب OTP مع تخزين/تحديث الاسم
+routes.post("/check-phone", async (req, res) => {
+  const { phone } = req.body;
+  try {
+    const user = await User.findOne({ phone });
+    if (user && user.username && user.username !== "Guest") {
+      return res.json({ exists: true });
+    }
+    return res.json({ exists: false });
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+});
+
 routes.post("/login", async (req, res) => {
   const { phone, username } = req.body;
   try {
