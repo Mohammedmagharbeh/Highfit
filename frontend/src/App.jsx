@@ -30,7 +30,7 @@ function AppContent() {
   const isAr = i18n.language === "ar";
 
   // قائمة المسارات التي لا تريد ظهور الهيدر فيها
-  const hideHeaderPaths = ["/", "/staff"];
+  const hideHeaderPaths = ["/", "/staff", "/order", "/cart", "/subscriptions"];
   const shouldShowHeader = !hideHeaderPaths.includes(location.pathname);
 
   return (
