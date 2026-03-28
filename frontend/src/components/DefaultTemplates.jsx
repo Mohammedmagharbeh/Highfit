@@ -8,10 +8,15 @@ import { Edit2, Save, PlusCircle, Trash2 } from "lucide-react";
 
 const DefaultTemplates = () => {
   const staffUserStr = sessionStorage.getItem("staffUser");
+  const regularUserStr = sessionStorage.getItem("user");
   let role = "user";
+
   if (staffUserStr) {
     const staffUser = JSON.parse(staffUserStr);
     role = staffUser.role;
+  } else if (regularUserStr) {
+    const regularUser = JSON.parse(regularUserStr);
+    role = regularUser.role || "user";
   }
 
   // Lead coach and admin can edit. Coach can only view.
@@ -36,7 +41,10 @@ const DefaultTemplates = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-950 text-white flex items-center justify-center p-8 text-xl animate-pulse" dir="rtl">
+      <div
+        className="min-h-screen bg-neutral-950 text-white flex items-center justify-center p-8 text-xl animate-pulse"
+        dir="rtl"
+      >
         جاري التحميل...
       </div>
     );
@@ -51,9 +59,11 @@ const DefaultTemplates = () => {
   const activeNutrition = nutritionPlans[safePlanId] || { meals: [] };
 
   const handleCreateNewTemplate = () => {
-    const newId = prompt("أدخل المعرف للبرنامج الجديد باللغة الإنجليزية (مثال: new_plan):");
+    const newId = prompt(
+      "أدخل المعرف للبرنامج الجديد باللغة الإنجليزية (مثال: new_plan):",
+    );
     if (!newId) return;
-    
+
     // Check if exists
     if (allIds.includes(newId)) {
       alert("هذا المعرف موجود مسبقاً");
@@ -67,7 +77,7 @@ const DefaultTemplates = () => {
     plansHook.updateTrainingInfo(newId, "title", newId);
     plansHook.updateTrainingInfo(newId, "arabicTitle", arTitle);
     plansHook.updateTrainingInfo(newId, "planId", newId);
-    
+
     nutritionHook.updateNutritionInfo(newId, "title", arTitle);
     nutritionHook.updateNutritionInfo(newId, "programId", newId);
 
@@ -76,7 +86,10 @@ const DefaultTemplates = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 font-sans p-4 md:p-8" dir="rtl">
+    <div
+      className="min-h-screen bg-neutral-950 text-neutral-100 font-sans p-4 md:p-8"
+      dir="rtl"
+    >
       <div className="absolute top-24 right-4 md:right-8 z-50 flex gap-3">
         {isEditMode ? (
           <>
@@ -100,7 +113,9 @@ const DefaultTemplates = () => {
               className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl transition-colors shadow-lg font-bold disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
-              {plansHook.isSaving || nutritionHook.isSaving ? "جاري الحفظ..." : "حفظ التعديلات"}
+              {plansHook.isSaving || nutritionHook.isSaving
+                ? "جاري الحفظ..."
+                : "حفظ التعديلات"}
             </button>
           </>
         ) : (
@@ -133,7 +148,7 @@ const DefaultTemplates = () => {
                 const tPlan = trainingPlans[id] || {};
                 const nPlan = nutritionPlans[id] || {};
                 const name = tPlan.arabicTitle || nPlan.title || id;
-                
+
                 return (
                   <div key={id} className="relative">
                     <button
@@ -145,13 +160,17 @@ const DefaultTemplates = () => {
                       }`}
                     >
                       <span className="text-lg">{name}</span>
-                      <span className="text-xs opacity-50" dir="ltr">id: {id}</span>
+                      <span className="text-xs opacity-50" dir="ltr">
+                        id: {id}
+                      </span>
                     </button>
                     {isEditMode && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (window.confirm("هل أنت متأكد من حذف هذا القالب؟")) {
+                          if (
+                            window.confirm("هل أنت متأكد من حذف هذا القالب؟")
+                          ) {
                             plansHook.deleteTemplate(id);
                             nutritionHook.deleteTemplate(id);
                             if (isActive) setActivePlanId("");
@@ -165,7 +184,7 @@ const DefaultTemplates = () => {
                   </div>
                 );
               })}
-              
+
               {isEditMode && (
                 <button
                   onClick={handleCreateNewTemplate}
@@ -194,13 +213,25 @@ const DefaultTemplates = () => {
                       <>
                         <input
                           value={activeTraining?.arabicTitle || ""}
-                          onChange={(e) => plansHook.updateTrainingInfo(safePlanId, "arabicTitle", e.target.value)}
+                          onChange={(e) =>
+                            plansHook.updateTrainingInfo(
+                              safePlanId,
+                              "arabicTitle",
+                              e.target.value,
+                            )
+                          }
                           className="text-2xl font-bold mb-2 bg-transparent border-b-2 border-dashed border-orange-500/50 px-2 py-1 focus:border-orange-500 outline-none w-full text-white"
                           placeholder="عنوان برنامج التدريب (بالعربية)"
                         />
                         <textarea
                           value={activeTraining?.desc || ""}
-                          onChange={(e) => plansHook.updateTrainingInfo(safePlanId, "desc", e.target.value)}
+                          onChange={(e) =>
+                            plansHook.updateTrainingInfo(
+                              safePlanId,
+                              "desc",
+                              e.target.value,
+                            )
+                          }
                           className="text-neutral-400 w-full bg-transparent border-b-2 border-dashed border-neutral-700 px-2 py-1 mt-2 focus:border-orange-500 outline-none resize-none"
                           placeholder="وصف إضافي (اختياري)"
                           rows={2}
@@ -211,7 +242,9 @@ const DefaultTemplates = () => {
                         <h2 className="text-2xl font-bold mb-2 text-white">
                           {activeTraining?.arabicTitle || "برنامج التدريب"}
                         </h2>
-                        <p className="text-neutral-400">{activeTraining?.desc}</p>
+                        <p className="text-neutral-400">
+                          {activeTraining?.desc}
+                        </p>
                       </>
                     )}
                   </div>
@@ -233,7 +266,9 @@ const DefaultTemplates = () => {
                         className="border-2 border-dashed border-neutral-700 hover:border-orange-500 hover:bg-orange-500/5 text-neutral-400 hover:text-orange-400 rounded-2xl p-6 transition-all flex flex-col items-center justify-center gap-3 min-h-[150px]"
                       >
                         <span className="text-4xl">+</span>
-                        <span className="font-bold text-lg">أضف يوم تمرين جديد</span>
+                        <span className="font-bold text-lg">
+                          أضف يوم تمرين جديد
+                        </span>
                       </button>
                     )}
                   </div>
@@ -247,13 +282,25 @@ const DefaultTemplates = () => {
                       <>
                         <input
                           value={activeNutrition?.title || ""}
-                          onChange={(e) => nutritionHook.updateNutritionInfo(safePlanId, "title", e.target.value)}
+                          onChange={(e) =>
+                            nutritionHook.updateNutritionInfo(
+                              safePlanId,
+                              "title",
+                              e.target.value,
+                            )
+                          }
                           className="text-2xl font-bold mb-2 bg-transparent border-b-2 border-dashed border-orange-500/50 px-2 py-1 focus:border-orange-500 outline-none w-full text-white"
                           placeholder="عنوان برنامج التغذية"
                         />
                         <textarea
                           value={activeNutrition?.desc || ""}
-                          onChange={(e) => nutritionHook.updateNutritionInfo(safePlanId, "desc", e.target.value)}
+                          onChange={(e) =>
+                            nutritionHook.updateNutritionInfo(
+                              safePlanId,
+                              "desc",
+                              e.target.value,
+                            )
+                          }
                           className="text-neutral-400 w-full bg-transparent border-b-2 border-dashed border-neutral-700 px-2 py-1 mt-2 focus:border-orange-500 outline-none resize-none"
                           placeholder="وصف البرنامج"
                           rows={2}
@@ -264,7 +311,9 @@ const DefaultTemplates = () => {
                         <h2 className="text-2xl font-bold mb-2 text-white">
                           {activeNutrition?.title || "برنامج التغذية"}
                         </h2>
-                        <p className="text-neutral-400">{activeNutrition?.desc}</p>
+                        <p className="text-neutral-400">
+                          {activeNutrition?.desc}
+                        </p>
                       </>
                     )}
                   </div>
@@ -286,7 +335,9 @@ const DefaultTemplates = () => {
                         className="w-full border-2 border-dashed border-neutral-700 hover:border-orange-500 hover:bg-orange-500/5 text-neutral-400 hover:text-orange-400 rounded-2xl p-6 transition-all flex flex-col items-center justify-center gap-3 min-h-[150px]"
                       >
                         <span className="text-4xl">+</span>
-                        <span className="font-bold text-lg">أضف وجبة جديدة</span>
+                        <span className="font-bold text-lg">
+                          أضف وجبة جديدة
+                        </span>
                       </button>
                     )}
                   </div>
