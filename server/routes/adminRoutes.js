@@ -22,30 +22,73 @@ router.get("/users", validateJWT, isAdmin, async (req, res) => {
   }
 });
 
+// router.post("/user/add", validateJWT, isAdmin, async (req, res) => {
+//   const { phone, role, username, password } = req.body;
+
+//   try {
+//     const existingUser = await User.findOne({ phone });
+//     if (existingUser) {
+//       return res.status(400).json({ message: "هذا الرقم مسجل مسبقاً" });
+//     }
+
+//     const newUser = new User({
+//       username,
+//       phone,
+//       password,
+//       role: role || "user",
+//     });
+
+//     await newUser.save();
+//     res.status(201).json(newUser);
+//   } catch (err) {
+//     res.status(500).json({ message: "فشل في إضافة المستخدم" });
+//   }
+// });
+
+// تحديث رول المستخدم (من يوزر لموظف أو أدمن)
+
 router.post("/user/add", validateJWT, isAdmin, async (req, res) => {
   const { phone, role, username, password } = req.body;
 
   try {
-    const existingUser = await User.findOne({ phone });
-    if (existingUser) {
-      return res.status(400).json({ message: "هذا الرقم مسجل مسبقاً" });
+    // 1. التحقق من الرقم فقط إذا كان الحساب "user" أو إذا تم إرسال رقم هاتف
+    if (phone) {
+      const existingUser = await User.findOne({ phone });
+      if (existingUser) {
+        return res.status(400).json({ message: "هذا الرقم مسجل مسبقاً" });
+      }
     }
 
+    // 2. التحقق من اسم المستخدم (Username) لأنه ضروري للموظفين
+    if (username) {
+      const existingUsername = await User.findOne({ username });
+      if (existingUsername) {
+        return res.status(400).json({ message: "اسم المستخدم هذا مستخدم بالفعل" });
+      }
+    }
+
+    // 3. إنشاء المستخدم الجديد
     const newUser = new User({
       username,
-      phone,
+      // إذا لم يوجد هاتف (مثل حالة الأدمن) نضع undefined ليعمل الـ sparse في المودل
+      phone: (phone && phone.trim() !== "") ? phone : undefined, 
       password,
       role: role || "user",
     });
 
     await newUser.save();
-    res.status(201).json(newUser);
+    
+    // إرجاع البيانات بدون الباسوورد للأمان
+    const userResponse = newUser.toObject();
+    delete userResponse.password;
+    
+    res.status(201).json(userResponse);
   } catch (err) {
-    res.status(500).json({ message: "فشل في إضافة المستخدم" });
+    console.error("ADD_USER_ERROR:", err); // عشان تشوف الخطأ الحقيقي بالـ Terminal
+    res.status(500).json({ message: "فشل في إضافة المستخدم", error: err.message });
   }
 });
 
-// تحديث رول المستخدم (من يوزر لموظف أو أدمن)
 router.put("/user/:id", validateJWT, isAdmin, async (req, res) => {
   const { id } = req.params;
   const { role } = req.body;
