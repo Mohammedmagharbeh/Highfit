@@ -22,18 +22,19 @@ router.get("/users", validateJWT, isAdmin, async (req, res) => {
   }
 });
 
-// إضافة مستخدم جديد يدوياً من قبل الأدمن
 router.post("/user/add", validateJWT, isAdmin, async (req, res) => {
-  const { phone, role } = req.body;
+  const { phone, role, username, password } = req.body;
+
   try {
-    // تشيك إذا الرقم موجود
     const existingUser = await User.findOne({ phone });
     if (existingUser) {
       return res.status(400).json({ message: "هذا الرقم مسجل مسبقاً" });
     }
 
     const newUser = new User({
+      username,
       phone,
+      password,
       role: role || "user",
     });
 
@@ -52,7 +53,7 @@ router.put("/user/:id", validateJWT, isAdmin, async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       id,
       { role },
-      { new: true }
+      { new: true },
     );
     if (!updatedUser) {
       return res.status(404).json({ message: "المستخدم غير موجود" });
