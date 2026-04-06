@@ -22,36 +22,11 @@ router.get("/users", validateJWT, isAdmin, async (req, res) => {
   }
 });
 
-// router.post("/user/add", validateJWT, isAdmin, async (req, res) => {
-//   const { phone, role, username, password } = req.body;
-
-//   try {
-//     const existingUser = await User.findOne({ phone });
-//     if (existingUser) {
-//       return res.status(400).json({ message: "هذا الرقم مسجل مسبقاً" });
-//     }
-
-//     const newUser = new User({
-//       username,
-//       phone,
-//       password,
-//       role: role || "user",
-//     });
-
-//     await newUser.save();
-//     res.status(201).json(newUser);
-//   } catch (err) {
-//     res.status(500).json({ message: "فشل في إضافة المستخدم" });
-//   }
-// });
-
-// تحديث رول المستخدم (من يوزر لموظف أو أدمن)
-
 router.post("/user/add", validateJWT, isAdmin, async (req, res) => {
   const { phone, role, username, password } = req.body;
 
   try {
-    // 1. التحقق من الرقم فقط إذا كان الحساب "user" أو إذا تم إرسال رقم هاتف
+    // 1. التحقق من الرقم
     if (phone) {
       const existingUser = await User.findOne({ phone });
       if (existingUser) {
@@ -59,33 +34,41 @@ router.post("/user/add", validateJWT, isAdmin, async (req, res) => {
       }
     }
 
-    // 2. التحقق من اسم المستخدم (Username) لأنه ضروري للموظفين
+    // 2. التحقق من اسم المستخدم
     if (username) {
       const existingUsername = await User.findOne({ username });
       if (existingUsername) {
-        return res.status(400).json({ message: "اسم المستخدم هذا مستخدم بالفعل" });
+        return res
+          .status(400)
+          .json({ message: "اسم المستخدم هذا مستخدم بالفعل" });
       }
     }
 
-    // 3. إنشاء المستخدم الجديد
+    // --- الـتـعـديـل هـنـا: تـشـفـيـر الـبـاسـوورد قـبـل الـحـفـظ ---
+    const bcrypt = require("bcrypt"); // استدعاء المكتبة
+    const salt = await bcrypt.genSalt(10); // توليد الملح
+    const hashedPassword = await bcrypt.hash(password, salt); // التشفير الحقيقي
+    // --------------------------------------------------------
+
+    // 3. إنشاء المستخدم الجديد (لاحظ استخدمنا hashedPassword)
     const newUser = new User({
       username,
-      // إذا لم يوجد هاتف (مثل حالة الأدمن) نضع undefined ليعمل الـ sparse في المودل
-      phone: (phone && phone.trim() !== "") ? phone : undefined, 
-      password,
+      phone: phone && phone.trim() !== "" ? phone : undefined,
+      password: hashedPassword, // *** هون السر، خزن المشفرة مش العادية ***
       role: role || "user",
     });
 
     await newUser.save();
-    
-    // إرجاع البيانات بدون الباسوورد للأمان
+
     const userResponse = newUser.toObject();
     delete userResponse.password;
-    
+
     res.status(201).json(userResponse);
   } catch (err) {
-    console.error("ADD_USER_ERROR:", err); // عشان تشوف الخطأ الحقيقي بالـ Terminal
-    res.status(500).json({ message: "فشل في إضافة المستخدم", error: err.message });
+    console.error("ADD_USER_ERROR:", err);
+    res
+      .status(500)
+      .json({ message: "فشل في إضافة المستخدم", error: err.message });
   }
 });
 

@@ -415,8 +415,6 @@
 
 // export default TrainingDayCard;
 
-
-
 import React, { useState } from "react";
 import {
   Check,
@@ -591,7 +589,8 @@ const ExerciseItem = ({
                 <div className="space-y-2">
                   <div className="flex items-center justify-between gap-2 text-sm font-semibold text-neutral-300">
                     <div className="flex items-center gap-2">
-                      <ImageIcon className="w-4 h-4 text-emerald-400" /> {t("training_plan.image_url_placeholder")}
+                      <ImageIcon className="w-4 h-4 text-emerald-400" />{" "}
+                      {t("training_plan.image_url_placeholder")}
                     </div>
                     <label className="cursor-pointer bg-neutral-800 hover:bg-neutral-700 text-xs px-2 py-1 rounded text-white transition flex items-center gap-1">
                       {isUploadingImage ? (
@@ -599,7 +598,9 @@ const ExerciseItem = ({
                       ) : (
                         <Upload className="w-3 h-3 text-emerald-400" />
                       )}
-                      {isUploadingImage ? t("training_plan.uploading") : t("training_plan.upload_image")}
+                      {isUploadingImage
+                        ? t("training_plan.uploading")
+                        : t("training_plan.upload_image")}
                       <input
                         type="file"
                         accept="image/*"
@@ -621,7 +622,8 @@ const ExerciseItem = ({
                 <div className="space-y-2">
                   <div className="flex items-center justify-between gap-2 text-sm font-semibold text-neutral-300">
                     <div className="flex items-center gap-2">
-                      <Play className="w-4 h-4 text-red-500" /> {t("training_plan.video_url_placeholder")}
+                      <Play className="w-4 h-4 text-red-500" />{" "}
+                      {t("training_plan.video_url_placeholder")}
                     </div>
                     <label className="cursor-pointer bg-neutral-800 hover:bg-neutral-700 text-xs px-2 py-1 rounded text-white transition flex items-center gap-1">
                       {isUploadingVideo ? (
@@ -629,7 +631,9 @@ const ExerciseItem = ({
                       ) : (
                         <Upload className="w-3 h-3 text-red-500" />
                       )}
-                      {isUploadingVideo ? t("training_plan.uploading") : t("training_plan.upload_video")}
+                      {isUploadingVideo
+                        ? t("training_plan.uploading")
+                        : t("training_plan.upload_video")}
                       <input
                         type="file"
                         accept="video/*"
@@ -663,7 +667,10 @@ const ExerciseItem = ({
                         src={ex.images[0]}
                         alt={ex.name}
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                        onError={(e) => (e.target.src = "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80")}
+                        onError={(e) =>
+                          (e.target.src =
+                            "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80")
+                        }
                       />
                     </div>
                   </div>
@@ -676,8 +683,13 @@ const ExerciseItem = ({
                       {t("training_plan.video_label")}
                     </div>
                     <div className="relative aspect-video rounded-lg overflow-hidden border border-neutral-800 bg-neutral-950 shadow-inner">
-                      {ex.video.includes("cloudinary.com") || ex.video.match(/\.(mp4|webm|ogg)$/i) ? (
-                        <video src={ex.video} controls className="w-full h-full object-cover">
+                      {ex.video.includes("cloudinary.com") ||
+                      ex.video.match(/\.(mp4|webm|ogg)$/i) ? (
+                        <video
+                          src={ex.video}
+                          controls
+                          className="w-full h-full object-cover"
+                        >
                           {t("training_plan.video_error")}
                         </video>
                       ) : (
@@ -730,7 +742,9 @@ const TrainingDayCard = ({ day, dayIndex, planId, plansHook, isEditMode }) => {
           {isEditMode ? (
             <input
               value={day.day}
-              onChange={(e) => plansHook.updateDay(planId, dayIndex, "day", e.target.value)}
+              onChange={(e) =>
+                plansHook.updateDay(planId, dayIndex, "day", e.target.value)
+              }
               className="bg-transparent border-b-2 border-dashed border-neutral-600 px-1 py-1 focus:border-emerald-500 outline-none text-white w-2/3"
               placeholder={t("training_plan.day_placeholder")}
             />
@@ -741,7 +755,9 @@ const TrainingDayCard = ({ day, dayIndex, planId, plansHook, isEditMode }) => {
         {isEditMode ? (
           <input
             value={day.focus}
-            onChange={(e) => plansHook.updateDay(planId, dayIndex, "focus", e.target.value)}
+            onChange={(e) =>
+              plansHook.updateDay(planId, dayIndex, "focus", e.target.value)
+            }
             className="bg-neutral-900 border border-neutral-700 rounded-full px-4 py-1.5 text-sm text-emerald-100 font-medium focus:border-emerald-500 outline-none w-1/3 text-center"
             placeholder={t("training_plan.focus_placeholder")}
           />
@@ -759,7 +775,9 @@ const TrainingDayCard = ({ day, dayIndex, planId, plansHook, isEditMode }) => {
 
       <div
         className={`grid transition-all duration-500 ease-in-out overflow-hidden flex-1 ${
-          isDayExpanded || isEditMode ? "grid-rows-[1fr] opacity-100 mt-6" : "grid-rows-[0fr] opacity-0 mt-0"
+          isDayExpanded || isEditMode
+            ? "grid-rows-[1fr] opacity-100 mt-6"
+            : "grid-rows-[0fr] opacity-0 mt-0"
         }`}
       >
         <div className="overflow-hidden flex flex-col h-full">
@@ -792,7 +810,14 @@ const TrainingDayCard = ({ day, dayIndex, planId, plansHook, isEditMode }) => {
               {isEditMode ? (
                 <input
                   value={day.cardio}
-                  onChange={(e) => plansHook.updateDay(planId, dayIndex, "cardio", e.target.value)}
+                  onChange={(e) =>
+                    plansHook.updateDay(
+                      planId,
+                      dayIndex,
+                      "cardio",
+                      e.target.value,
+                    )
+                  }
                   className="bg-transparent border-b border-dashed border-blue-500/50 w-full outline-none text-blue-200"
                   placeholder={t("training_plan.cardio_placeholder")}
                 />
