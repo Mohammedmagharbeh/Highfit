@@ -2,23 +2,23 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
-    username: { type: String, sparse: true, unique: true },
-    phone: { type: String, sparse: true, unique: true }, // للمشتركين (Users)
-    email: { type: String, sparse: true, unique: true }, // للموظفين (Staff)
-    password: { type: String }, // للموظفين والآدمن
+    userType: {
+      type: String,
+      enum: ["customer", "staff"],
+      required: true,
+    },
+    username: { type: String, sparse: true, unique: true, required: true },
     role: {
       type: String,
       enum: ["admin", "chef", "trainer_lead", "coach", "user"],
       default: "user",
     },
-    // --- الحقل المضاف للتحكم في الظهور للكوتش ---
-    isSubscribed: {
-      type: Boolean,
-      default: false,
-    },
-    // ---------------------------------------
+    phone: { type: String, sparse: true, unique: true },
+    isSubscribed: { type: Boolean, default: false },
     otp: String,
     otpExpires: Date,
+    password: { type: String },
+    isActive: { type: Boolean, default: true },
   },
   { timestamps: true },
 );

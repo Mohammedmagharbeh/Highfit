@@ -31,7 +31,6 @@ export default function StaffLoginPage() {
     }
   }, [navigate]);
 
-  // تحميل اسم المستخدم إذا كان محفوظاً مسبقاً
   useEffect(() => {
     const savedUsername = localStorage.getItem("rememberedStaffUser");
     if (savedUsername) {
@@ -63,7 +62,6 @@ export default function StaffLoginPage() {
       );
 
       if (response.status === 200) {
-        // إدارة "تذكرني"
         if (rememberMe) {
           localStorage.setItem("rememberedStaffUser", formData.username);
         } else {
@@ -71,18 +69,21 @@ export default function StaffLoginPage() {
         }
 
         Cookies.set("staffToken", response.data.token, { expires: 7 });
-        Cookies.set("staffUser", JSON.stringify(response.data.user), { expires: 7 });
+        Cookies.set("staffUser", JSON.stringify(response.data.user), {
+          expires: 7,
+        });
 
         toast.success(t("staff_toast_login_success"), { id: loadingToast });
 
-        if (response.data.user.role === "admin") {
+        const { role } = response.data.user;
+        if (role === "admin") {
           navigate("/admin/users");
-        } else if (
-          ["chef", "coach", "trainer_lead"].includes(response.data.user.role)
-        ) {
-          navigate("/staff/dashboard");
+        } else if (role === "chef") {
+          navigate("/chef");
+        } else if (role === "trainer_lead" || role === "coach") {
+          navigate("/plans");
         } else {
-          navigate("/dashboard");
+          navigate("/Home");
         }
       }
     } catch (error) {
@@ -99,7 +100,6 @@ export default function StaffLoginPage() {
 
   return (
     <div className="relative flex flex-col lg:flex-row min-h-screen bg-[#0a0a0a] text-white overflow-hidden">
-      {/* القسم الجمالي */}
       <div className="relative w-full lg:w-1/2 h-[30vh] lg:h-screen p-8 lg:p-16 flex flex-col justify-between border-r border-white/5">
         <img
           src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=2070"
@@ -127,7 +127,6 @@ export default function StaffLoginPage() {
         </div>
       </div>
 
-      {/* قسم الفورم */}
       <div
         className="relative flex-1 flex items-center justify-center p-6 lg:p-16"
         dir={isAr ? "rtl" : "ltr"}
@@ -180,7 +179,6 @@ export default function StaffLoginPage() {
               </div>
             </div>
 
-            {/* زر تذكرني */}
             <div className="flex items-center justify-between px-1">
               <button
                 type="button"
