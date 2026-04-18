@@ -26,8 +26,8 @@ router.post("/user/add", validateJWT, isAdmin, async (req, res) => {
   const { phone, role, username, password } = req.body;
 
   try {
-    // 1. التحقق من الرقم
-    if (phone) {
+    // 1. التحقق من الرقم (إذا وُجد)
+    if (phone && phone.trim() !== "") {
       const existingUser = await User.findOne({ phone });
       if (existingUser) {
         return res.status(400).json({ message: "هذا الرقم مسجل مسبقاً" });
@@ -44,17 +44,27 @@ router.post("/user/add", validateJWT, isAdmin, async (req, res) => {
       }
     }
 
-    // --- الـتـعـديـل هـنـا: تـشـفـيـر الـبـاسـوورد قـبـل الـحـفـظ ---
-    const bcrypt = require("bcrypt"); // استدعاء المكتبة
-    const salt = await bcrypt.genSalt(10); // توليد الملح
-    const hashedPassword = await bcrypt.hash(password, salt); // التشفير الحقيقي
-    // --------------------------------------------------------
+    // --- الـتـعـديـل الـجـذري هـنـا ---
+    let finalPassword = undefined;
 
-    // 3. إنشاء المستخدم الجديد (لاحظ استخدمنا hashedPassword)
+    // نشفر الباسوورد فقط إذا كانت موجودة (لحسابات الموظفين)
+    if (password && password.trim() !== "") {
+      const bcrypt = require("bcrypt");
+      const salt = await bcrypt.genSalt(10);
+      finalPassword = await bcrypt.hash(password, salt);
+    }
+    // إذا الحساب مش يوزر عادي وما بعت باسوورد، بنرفض
+    else if (role !== "user") {
+      return res
+        .status(400)
+        .json({ message: "كلمة المرور مطلوبة لحسابات الموظفين" });
+    }
+
+    // 3. إنشاء المستخدم الجديد
     const newUser = new User({
       username,
       phone: phone && phone.trim() !== "" ? phone : undefined,
-      password: hashedPassword, // *** هون السر، خزن المشفرة مش العادية ***
+      password: finalPassword, // رح تكون مشفرة للموظف و undefined لليوزر
       role: role || "user",
     });
 
@@ -71,7 +81,6 @@ router.post("/user/add", validateJWT, isAdmin, async (req, res) => {
       .json({ message: "فشل في إضافة المستخدم", error: err.message });
   }
 });
-
 router.put("/user/:id", validateJWT, isAdmin, async (req, res) => {
   const { id } = req.params;
   const { role } = req.body;
