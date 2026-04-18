@@ -1,4 +1,35 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  @keyframes enter {
+    from {
+      transform: translateY(-12px) scale(0.96);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes leave {
+    from {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(-12px) scale(0.96);
+      opacity: 0;
+    }
+  }
+
+  .animate-enter {
+    animation: enter 0.25s ease-out forwards;
+  }
+
+  .animate-leave {
+    animation: leave 0.2s ease-in forwards;
+  }
+}

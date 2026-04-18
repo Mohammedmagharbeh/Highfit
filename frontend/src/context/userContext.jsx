@@ -6,11 +6,63 @@ import {
   useState,
   useEffect,
   useCallback,
+  useRef,
 } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 
 const UserContext = createContext();
+
+const clearAllAuthCookies = () => {
+  Cookies.remove("token");
+  Cookies.remove("user");
+  Cookies.remove("staffToken");
+  Cookies.remove("staffUser");
+};
+
+const showSessionExpiredToast = (message) => {
+  toast.custom(
+    (toastObj) => (
+      <div
+        className={`${
+          toastObj.visible ? "animate-enter" : "animate-leave"
+        } max-w-sm w-full bg-[#1a1a1a] border border-orange-500/30 shadow-2xl shadow-orange-500/10 rounded-2xl pointer-events-auto flex items-start gap-4 p-5`}
+      >
+        <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#f97316"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+        </div>
+
+        <div className="flex-1">
+          <p className="text-white font-black text-sm uppercase tracking-wide">
+            Session Ended
+          </p>
+          <p className="text-gray-400 text-xs mt-0.5 font-medium">{message}</p>
+        </div>
+
+        <button
+          onClick={() => toast.dismiss(toastObj.id)}
+          className="text-gray-600 hover:text-orange-500 transition-colors text-lg leading-none mt-0.5"
+        >
+          ×
+        </button>
+      </div>
+    ),
+    { duration: 4000, position: "top-center" },
+  );
+};
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -19,6 +71,8 @@ export const UserProvider = ({ children }) => {
   const COOKIE_KEY = "user";
   const isHttps =
     typeof window !== "undefined" && window.location.protocol === "https:";
+
+  const hasShownExpiredToast = useRef(false);
 
   const persistUser = useCallback(
     (value) => {
@@ -35,13 +89,39 @@ export const UserProvider = ({ children }) => {
     },
     [COOKIE_KEY, isHttps],
   );
-  const { t } = useTranslation();
 
-  const logout = useCallback(() => {
-    persistUser(null);
-    setUser(null);
-    toast.error(t("session_expired") || "Session expired, please log in again");
-  }, [persistUser, t]);
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === "ar";
+
+  const logout = useCallback(
+    (showExpiredMessage = false) => {
+      persistUser(null);
+      setUser(null);
+
+      clearAllAuthCookies();
+      if (showExpiredMessage && !hasShownExpiredToast.current) {
+        hasShownExpiredToast.current = true;
+
+        const message = isAr
+          ? "انتهت صلاحية جلستك. سيتم توجيهك إلى صفحة تسجيل الدخول..."
+          : "Your session has expired. Redirecting to login...";
+
+        showSessionExpiredToast(message);
+
+        setTimeout(() => {
+          hasShownExpiredToast.current = false;
+          const currentPath = window.location.pathname;
+          const isStaffPath =
+            currentPath.startsWith("/admin") ||
+            currentPath.startsWith("/chef") ||
+            currentPath.startsWith("/plans") ||
+            currentPath.startsWith("/staff");
+          window.location.href = isStaffPath ? "/staff" : "/";
+        }, 2000);
+      }
+    },
+    [persistUser, isAr],
+  );
 
   const syncUserWithServer = useCallback(
     async (token) => {
@@ -60,14 +140,13 @@ export const UserProvider = ({ children }) => {
         return normalizedUser;
       } catch (error) {
         console.error("Failed to sync user with server:", error);
-        logout();
+        logout(true);
         return null;
       }
     },
     [logout, persistUser],
   );
 
-  // ✅ Load user from cookies on mount and revalidate with the server
   useEffect(() => {
     let isMounted = true;
 
@@ -100,37 +179,36 @@ export const UserProvider = ({ children }) => {
   }, [COOKIE_KEY, syncUserWithServer]);
 
   const login = (userData) => {
+    hasShownExpiredToast.current = false;
     persistUser(userData);
     setUser(userData);
     syncUserWithServer(userData.token);
   };
 
-  // ✅ Set up axios interceptor + fetch wrapper to handle "Invalid token" responses
   useEffect(() => {
+    const isTokenError = (errorString) => {
+      const s = errorString.toLowerCase();
+      return (
+        s.includes("invalid token") ||
+        s.includes("invalid or expired token") ||
+        s.includes("expired token") ||
+        s.includes("jwt expired") ||
+        s.includes("jwt malformed")
+      );
+    };
+
     const interceptor = axios.interceptors.response.use(
       (response) => response,
       (error) => {
-        // Check if the error response contains "Invalid token"
-        const errorMessage =
-          error.response?.data ||
-          error.response?.data?.message ||
-          error.message ||
-          "";
+        if (error.response?.status === 403 || error.response?.status === 401) {
+          const data = error.response?.data;
+          const errorString =
+            typeof data === "string" ? data : JSON.stringify(data ?? "");
 
-        // Convert to string for comparison (handles both string and object responses)
-        const errorString =
-          typeof errorMessage === "string"
-            ? errorMessage
-            : JSON.stringify(errorMessage);
-
-        if (
-          errorString.includes("Invalid token") ||
-          (error.response?.status === 403 &&
-            errorString.toLowerCase().includes("invalid token"))
-        ) {
-          logout();
+          if (isTokenError(errorString)) {
+            logout(true);
+          }
         }
-
         return Promise.reject(error);
       },
     );
@@ -139,7 +217,7 @@ export const UserProvider = ({ children }) => {
     window.fetch = async (...args) => {
       const response = await originalFetch(...args);
 
-      if (response.status === 403) {
+      if (response.status === 403 || response.status === 401) {
         try {
           const cloned = response.clone();
           const contentType = cloned.headers.get("content-type") || "";
@@ -152,8 +230,8 @@ export const UserProvider = ({ children }) => {
             payload = await cloned.text();
           }
 
-          if (payload.toLowerCase().includes("invalid token")) {
-            logout();
+          if (isTokenError(payload)) {
+            logout(true);
           }
         } catch (err) {
           console.error("Failed to inspect fetch response:", err);
@@ -163,7 +241,6 @@ export const UserProvider = ({ children }) => {
       return response;
     };
 
-    // Cleanup: remove interceptor on unmount
     return () => {
       axios.interceptors.response.eject(interceptor);
       window.fetch = originalFetch;
