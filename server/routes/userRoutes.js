@@ -21,7 +21,7 @@ routes.get("/me", validateJWT, async (req, res) => {
 routes.post("/check-phone", async (req, res) => {
   const { phone } = req.body;
   try {
-    const user = await User.findOne({ phone, userType: "customer" });
+    const user = await User.findOne({ phone });
     if (user) {
       return res.json({ exists: true, isActive: user.isActive });
     }
@@ -34,7 +34,7 @@ routes.post("/check-phone", async (req, res) => {
 routes.post("/login", async (req, res) => {
   const { phone } = req.body;
   try {
-    const user = await User.findOne({ phone, userType: "customer" });
+    const user = await User.findOne({ phone });
 
     if (!user) {
       return res.status(403).json({
@@ -65,7 +65,7 @@ routes.post("/login", async (req, res) => {
 routes.post("/verify-otp", async (req, res) => {
   const { phone, otp } = req.body;
   try {
-    const user = await User.findOne({ phone, userType: "customer" });
+    const user = await User.findOne({ phone });
 
     if (!user) {
       return res.status(404).json({ msg: "المستخدم غير موجود" });
