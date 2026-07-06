@@ -21,9 +21,8 @@ async function sendOTP(phone, otp) {
   // تنظيف الرقم من أي رموز غير الأرقام
   const cleanPhone = phone.replace(/\D/g, ""); 
 
-  const url = `https://www.josms.net/SMSServices/Clients/Prof/RestSingleSMS/SendSMS` +
-              `?senderid=${senderid}&numbers=${cleanPhone}&accname=${accname}` +
-              `&AccPass=${encodedPass}&msg=${encodedMsg}`;
+  const url = `https://www.josms.net/SMSServices/Clients/Prof/RestSingleSMS_General/SendSMS?senderid=${senderid}&numbers=${phone}&accname=${accname}&AccPass=${encodedPass}&msg=${encodedMsg}`;
+
 
   try {
     const response = await fetch(url);
@@ -51,9 +50,8 @@ async function sendOrderConfirm(phone, mealName = "") {
   const encodedPass = encodeURIComponent(accpass);
   const cleanPhone = phone.replace(/\D/g, "");
 
-  const url = `https://www.josms.net/SMSServices/Clients/Prof/RestSingleSMS/SendSMS` +
-              `?senderid=${senderid}&numbers=${cleanPhone}&accname=${accname}` +
-              `&AccPass=${encodedPass}&msg=${encodedMsg}`;
+  const url = `https://www.josms.net/SMSServices/Clients/Prof/RestSingleSMS_General/SendSMS?senderid=${senderid}&numbers=${phone}&accname=${accname}&AccPass=${encodedPass}&msg=${encodedMsg}`;
+
 
   try {
     const response = await fetch(url);
