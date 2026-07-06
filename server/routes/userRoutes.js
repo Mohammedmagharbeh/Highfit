@@ -53,6 +53,11 @@ routes.post("/login", async (req, res) => {
     const otp = generateOTP();
     user.otp = otp;
     user.otpExpires = Date.now() + 5 * 60 * 1000;
+    
+    if (!user.userType) {
+      user.userType = user.role === "user" ? "customer" : "staff";
+    }
+    
     await user.save();
 
     await sendOTP(phone, otp);
@@ -81,6 +86,11 @@ routes.post("/verify-otp", async (req, res) => {
 
     user.otp = null;
     user.otpExpires = null;
+
+    if (!user.userType) {
+      user.userType = user.role === "user" ? "customer" : "staff";
+    }
+
     await user.save();
 
     const token = jwt.sign(

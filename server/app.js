@@ -15,7 +15,7 @@ const corsOrigins = [
   "https://highfit-1.onrender.com",
   "http://localhost:5173",
   "https://highfit.com.jo",
-  "https://www.highfit.com.jo"
+  "https://www.highfit.com.jo",
 ];
 
 const io = new Server(server, {
@@ -30,10 +30,12 @@ app.set("io", io);
 
 connectDB();
 
-app.use(cors({
-  origin: corsOrigins,
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: corsOrigins,
+    credentials: true,
+  }),
+);
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 

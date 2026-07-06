@@ -1,0 +1,213 @@
+import { useState, useEffect } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
+
+const API_URL = `${import.meta.env.VITE_BASE_URL}/plans`;
+export const useEditablePlans = () => {
+  const [data, setData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const fetchPlans = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(API_URL);
+      const dbData = response.data;
+
+      if (dbData && Object.keys(dbData).length > 0) {
+        setData(dbData);
+      } else {
+        setData({});
+      }
+    } catch (error) {
+      console.error("Error fetching from DB:", error);
+      setData({});
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPlans();
+  }, []);
+
+  const resetToOriginal = () => {
+    fetchPlans();
+  };
+
+  const saveToDatabase = async (silent = false) => {
+    setIsSaving(true);
+    let toastId;
+    if (!silent)
+      toastId = toast.loading("جار حفظ الپيانات في قاعدة البيانات...");
+    try {
+      await axios.post(`${API_URL}/bulk`, data);
+      if (!silent) toast.success("تم الحفظ بنجاح!", { id: toastId });
+    } catch (error) {
+      console.error("Failed to save to database:", error);
+      if (!silent)
+        toast.error("فشل الحفظ. يرجى المحاولة مرة اخرى", { id: toastId });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const addDay = (planId) => {
+    setData((prev) => {
+      const plan = prev[planId];
+      if (!plan) return prev;
+      const newDay = {
+        day: "يوم جديد",
+        focus: "تركيز جديد",
+        exercises: [],
+        cardio: "بدون كارديو",
+      };
+
+      const updatedPlan = {
+        ...plan,
+        training: [...(plan.training || []), newDay],
+      };
+
+      return {
+        ...prev,
+        [planId]: updatedPlan,
+      };
+    });
+  };
+
+  const deleteDay = (planId, dayIndex) => {
+    setData((prev) => {
+      const plan = prev[planId];
+      const newTraining = [...plan.training];
+      newTraining.splice(dayIndex, 1);
+
+      const updatedPlan = { ...plan, training: newTraining };
+
+      return {
+        ...prev,
+        [planId]: updatedPlan,
+      };
+    });
+  };
+
+  const updateDay = (planId, dayIndex, key, value) => {
+    setData((prev) => {
+      const plan = prev[planId];
+      const newTraining = [...plan.training];
+      newTraining[dayIndex] = { ...newTraining[dayIndex], [key]: value };
+
+      const updatedPlan = { ...plan, training: newTraining };
+
+      return {
+        ...prev,
+        [planId]: updatedPlan,
+      };
+    });
+  };
+
+  const addExercise = (planId, dayIndex) => {
+    setData((prev) => {
+      const plan = prev[planId];
+      const newTraining = [...plan.training];
+      const newEx = {
+        name: "تمرين جديد",
+        sets: 3,
+        reps: "10 عدات",
+        desc: "وصف التمرين",
+        video: "",
+        images: [""],
+      };
+      newTraining[dayIndex] = {
+        ...newTraining[dayIndex],
+        exercises: [...(newTraining[dayIndex].exercises || []), newEx],
+      };
+
+      const updatedPlan = { ...plan, training: newTraining };
+
+      return {
+        ...prev,
+        [planId]: updatedPlan,
+      };
+    });
+  };
+
+  const deleteExercise = (planId, dayIndex, exIndex) => {
+    setData((prev) => {
+      const plan = prev[planId];
+      const newTraining = [...plan.training];
+      const newExercises = [...newTraining[dayIndex].exercises];
+      newExercises.splice(exIndex, 1);
+      newTraining[dayIndex] = {
+        ...newTraining[dayIndex],
+        exercises: newExercises,
+      };
+
+      const updatedPlan = { ...plan, training: newTraining };
+
+      return {
+        ...prev,
+        [planId]: updatedPlan,
+      };
+    });
+  };
+
+  const updateExercise = (planId, dayIndex, exIndex, key, value) => {
+    setData((prev) => {
+      const plan = prev[planId];
+      const newTraining = [...plan.training];
+      const newExercises = [...newTraining[dayIndex].exercises];
+      newExercises[exIndex] = { ...newExercises[exIndex], [key]: value };
+      newTraining[dayIndex] = {
+        ...newTraining[dayIndex],
+        exercises: newExercises,
+      };
+
+      const updatedPlan = { ...plan, training: newTraining };
+
+      return {
+        ...prev,
+        [planId]: updatedPlan,
+      };
+    });
+  };
+
+  const updateTrainingInfo = (planId, key, value) => {
+    setData((prev) => {
+      const plan = prev[planId] || { training: [] };
+      return {
+        ...prev,
+        [planId]: { ...plan, [key]: value },
+      };
+    });
+  };
+
+  const deleteTemplate = async (planId) => {
+    try {
+      await axios.delete(`${API_URL}/${planId}`);
+      setData((prev) => {
+        const newData = { ...prev };
+        delete newData[planId];
+        return newData;
+      });
+    } catch (e) {
+      console.error(e);
+      toast.error("فشل حذف قالب التدريب");
+    }
+  };
+
+  return {
+    data,
+    loading,
+    isSaving,
+    saveToDatabase,
+    resetToOriginal,
+    addDay,
+    deleteDay,
+    updateDay,
+    addExercise,
+    deleteExercise,
+    updateExercise,
+    updateTrainingInfo,
+    deleteTemplate,
+  };
+};
