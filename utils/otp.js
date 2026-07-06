@@ -12,7 +12,7 @@ function generateOTP() {
 async function sendOTP(phone, otp) {
   const senderid = "HIGH FIT"; // معرف المرسل الخاص بك
   const accname = "highfit";
-  const accpass = "RwQ$$8P_m@RA!Dsd88";
+  const accpass = "mE5jT3oB3pK8cG1r";
 
   const msg = `رمز التحقق الخاص بك في HIGH FIT هو: ${otp}`;
   const encodedMsg = encodeURIComponent(msg);
@@ -42,7 +42,7 @@ async function sendOTP(phone, otp) {
 async function sendOrderConfirm(phone, mealName = "") {
   const senderid = "HIGH FIT"; 
   const accname = "highfit";
-  const accpass = "RwQ$$8P_m@RA!Dsd88";
+  const accpass = "mE5jT3oB3pK8cG1r";
 
   // الرسالة التي ستصل للزبون
   const msg = `تم التأكيد - طلبك (${mealName}) قيد التحضير في HIGH FIT. صحة وعافية!`;
