@@ -21,8 +21,9 @@ async function sendOTP(phone, otp) {
   // تنظيف الرقم من أي رموز غير الأرقام
   const cleanPhone = phone.replace(/\D/g, ""); 
 
-  const url = `https://www.josms.net/SMSServices/Clients/Prof/RestSingleSMS_General/SendSMS?senderid=${senderid}&numbers=${phone}&accname=${accname}&AccPass=${encodedPass}&msg=${encodedMsg}`;
-
+  const url = `https://www.josms.net/SMSServices/Clients/Prof/RestSingleSMS/SendSMS` +
+              `?senderid=${senderid}&numbers=${cleanPhone}&accname=${accname}` +
+              `&AccPass=${encodedPass}&msg=${encodedMsg}`;
 
   try {
     const response = await fetch(url);
@@ -40,7 +41,7 @@ async function sendOTP(phone, otp) {
  */
 async function sendOrderConfirm(phone, mealName = "") {
   const senderid = "HIGH FIT"; 
-  const accname = "highfitgym";
+  const accname = " highfitgym";
   const accpass = "mE5jT3oB3pK8cG1r";
 
   // الرسالة التي ستصل للزبون
@@ -50,8 +51,9 @@ async function sendOrderConfirm(phone, mealName = "") {
   const encodedPass = encodeURIComponent(accpass);
   const cleanPhone = phone.replace(/\D/g, "");
 
-  const url = `https://www.josms.net/SMSServices/Clients/Prof/RestSingleSMS_General/SendSMS?senderid=${senderid}&numbers=${phone}&accname=${accname}&AccPass=${encodedPass}&msg=${encodedMsg}`;
-
+  const url = `https://www.josms.net/SMSServices/Clients/Prof/RestSingleSMS/SendSMS` +
+              `?senderid=${senderid}&numbers=${cleanPhone}&accname=${accname}` +
+              `&AccPass=${encodedPass}&msg=${encodedMsg}`;
 
   try {
     const response = await fetch(url);
